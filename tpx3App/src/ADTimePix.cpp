@@ -1506,14 +1506,13 @@ void ADTimePix::throttleRequest() {
 cpr::Response ADTimePix::makeOptimizedGetRequest(const std::string& url) {
     throttleRequest();
     
-    // Configure session with optimizations
+    // Configure session with optimizations (CPR 1.9.1 compatible)
     httpSession.SetUrl(cpr::Url{url});
     httpSession.SetAuth(cpr::Authentication{"user", "pass", cpr::AuthMode::BASIC});
     httpSession.SetParameters(cpr::Parameters{{"anon", "true"}, {"key", "value"}});
     httpSession.SetTimeout(cpr::Timeout{10000});
     httpSession.SetConnectTimeout(cpr::ConnectTimeout{5000});
-    httpSession.SetOption(cpr::KeepAlive{true});
-    httpSession.SetOption(cpr::TcpKeepAlive{true});
+    // Note: KeepAlive options not available in CPR 1.9.1, but session reuse still provides benefits
     
     return httpSession.Get();
 }
@@ -1521,15 +1520,14 @@ cpr::Response ADTimePix::makeOptimizedGetRequest(const std::string& url) {
 cpr::Response ADTimePix::makeOptimizedPutRequest(const std::string& url, const std::string& body) {
     throttleRequest();
     
-    // Configure session with optimizations
+    // Configure session with optimizations (CPR 1.9.1 compatible)
     httpSession.SetUrl(cpr::Url{url});
     httpSession.SetAuth(cpr::Authentication{"user", "pass", cpr::AuthMode::BASIC});
     httpSession.SetBody(cpr::Body{body});
     httpSession.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
     httpSession.SetTimeout(cpr::Timeout{10000});
     httpSession.SetConnectTimeout(cpr::ConnectTimeout{5000});
-    httpSession.SetOption(cpr::KeepAlive{true});
-    httpSession.SetOption(cpr::TcpKeepAlive{true});
+    // Note: KeepAlive options not available in CPR 1.9.1, but session reuse still provides benefits
     
     return httpSession.Put();
 }
