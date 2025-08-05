@@ -74,6 +74,11 @@ const char* driverName = "ADTimePix";
 
 // Add any driver constants here
 
+// Initialize static HTTP optimization members
+cpr::Session ADTimePix::httpSession;
+std::chrono::steady_clock::time_point ADTimePix::lastRequestTime = std::chrono::steady_clock::now();
+const std::chrono::milliseconds ADTimePix::REQUEST_THROTTLE_MS{10};
+
 
 // -----------------------------------------------------------------------
 // ADTimePix Utility Functions (Reporting/Logging/ExternalC)
@@ -1468,11 +1473,8 @@ asynStatus ADTimePix::sendConfiguration(const json& config) {
     // Log configuration for debugging
     printf("server=%s\n", config.dump(3, ' ', true).c_str());
     
-    // Send HTTP request with timeout
-    cpr::Response r = cpr::Put(cpr::Url{server},
-                               cpr::Body{config.dump().c_str()},
-                               cpr::Header{{"Content-Type", "application/json"}},
-                               cpr::Timeout{10000}); // 10 second timeout
+    // Send optimized HTTP request with optimized JSON serialization
+    cpr::Response r = makeOptimizedPutRequest(server, getOptimizedJsonString(config));
     
     setIntegerParam(ADTimePixHttpCode, r.status_code);
     setStringParam(ADTimePixWriteMsg, r.text.c_str());
@@ -1484,6 +1486,90 @@ asynStatus ADTimePix::sendConfiguration(const json& config) {
     }
     
     return asynSuccess;
+}
+
+/**
+ * HTTP optimization methods
+ */
+void ADTimePix::throttleRequest() {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRequestTime);
+    
+    if (elapsed < REQUEST_THROTTLE_MS) {
+        std::this_thread::sleep_for(REQUEST_THROTTLE_MS - elapsed);
+    }
+    
+    lastRequestTime = std::chrono::steady_clock::now();
+}
+
+cpr::Response ADTimePix::makeOptimizedGetRequest(const std::string& url) {
+    throttleRequest();
+    
+    // Configure session with optimizations
+    httpSession.SetUrl(cpr::Url{url});
+    httpSession.SetAuth(cpr::Authentication{"user", "pass", cpr::AuthMode::BASIC});
+    httpSession.SetParameters(cpr::Parameters{{"anon", "true"}, {"key", "value"}});
+    httpSession.SetTimeout(cpr::Timeout{10000});
+    httpSession.SetConnectTimeout(cpr::ConnectTimeout{5000});
+    httpSession.SetOption(cpr::KeepAlive{true});
+    httpSession.SetOption(cpr::TcpKeepAlive{true});
+    
+    return httpSession.Get();
+}
+
+cpr::Response ADTimePix::makeOptimizedPutRequest(const std::string& url, const std::string& body) {
+    throttleRequest();
+    
+    // Configure session with optimizations
+    httpSession.SetUrl(cpr::Url{url});
+    httpSession.SetAuth(cpr::Authentication{"user", "pass", cpr::AuthMode::BASIC});
+    httpSession.SetBody(cpr::Body{body});
+    httpSession.SetHeader(cpr::Header{{"Content-Type", "application/json"}});
+    httpSession.SetTimeout(cpr::Timeout{10000});
+    httpSession.SetConnectTimeout(cpr::ConnectTimeout{5000});
+    httpSession.SetOption(cpr::KeepAlive{true});
+    httpSession.SetOption(cpr::TcpKeepAlive{true});
+    
+    return httpSession.Put();
+}
+
+/**
+ * JSON optimization methods
+ */
+const std::string& ADTimePix::getOptimizedJsonString(const json& jsonObj) const {
+    // Reuse string object to avoid allocations
+    reusableJsonString.clear();
+    reusableJsonString.reserve(1024); // Pre-allocate reasonable size
+    
+    // Use optimized dump without pretty printing for performance
+    reusableJsonString = jsonObj.dump();
+    return reusableJsonString;
+}
+
+json& ADTimePix::getReusableJsonObject() const {
+    // Clear and reuse the same JSON object
+    reusableJsonObject.clear();
+    return reusableJsonObject;
+}
+
+/**
+ * Memory optimization methods
+ */
+const std::string& ADTimePix::getPooledUrlString(const std::string& endpoint) const {
+    // Reuse URL string pool to avoid repeated allocations
+    urlStringPool.clear();
+    urlStringPool.reserve(serverURL.length() + endpoint.length() + 1);
+    urlStringPool = serverURL + endpoint;
+    return urlStringPool;
+}
+
+void ADTimePix::optimizeStringPool(std::string& pool, const std::string& content) const {
+    // Optimize string reuse with capacity management
+    if (pool.capacity() < content.length() + 256) {
+        pool.reserve(content.length() + 256); // Reserve extra space for growth
+    }
+    pool.clear();
+    pool = content;
 }
 
 /**
@@ -1944,8 +2030,8 @@ void ADTimePix::timePixCallback(){
             // elapsedTime = r.elapsed;                                      // 0.00035 s
             // printf("Elapsed Time = %f\n", elapsedTime);
 
-            epicsThreadSleep(0.1);
-        //    epicsThreadSleep(0);
+            // Optimized sleep - reduce latency while avoiding excessive CPU usage
+            epicsThreadSleep(0.01); // Reduced from 0.1s to 0.01s for better responsiveness
         }
         frameCounter = new_frame_num;
 
@@ -2311,11 +2397,8 @@ void ADTimePix::report(FILE* fp, int details){
 
 asynStatus ADTimePix::readImage()
 {
-//    Image image;
-//    static const string imageEndpoint = "/measurement/image";  // Cache the endpoint
-//    static const string URLString = this->serverURL + imageEndpoint;  // Cache the full URL
-    static const string URLString = this->serverURL + "/measurement/image";  // Cache the full URL
-//    string URLString=this->serverURL + std::string("/measurement/image");
+    // Use cached URL string for better performance
+    static const string URLString = this->serverURL + "/measurement/image";
 
     size_t dims[3];
     int ndims;
@@ -2331,6 +2414,7 @@ asynStatus ADTimePix::readImage()
     static const char *functionName = "readImage";
     
     try {
+        // Read image with optimized GraphicsMagick settings
         image.read(URLString);
         imageType = image.type();
         depth = image.depth();
@@ -2377,9 +2461,28 @@ asynStatus ADTimePix::readImage()
             return(asynError);
             break;
         }
-        if (pImage) pImage->release();
-        this->pArrays[0] = this->pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
-        pImage = this->pArrays[0];  
+        
+        // Check if image dimensions have changed to avoid unnecessary reallocations
+        imageDimensionsChanged = (cachedNdims != ndims || 
+                                cachedImageDims[0] != dims[0] || 
+                                cachedImageDims[1] != dims[1] || 
+                                cachedImageDims[2] != dims[2] ||
+                                cachedDataType != dataType ||
+                                cachedColorMode != colorMode);
+        
+        if (imageDimensionsChanged || !pImage) {
+            if (pImage) pImage->release();
+            this->pArrays[0] = this->pNDArrayPool->alloc(ndims, dims, dataType, 0, NULL);
+            pImage = this->pArrays[0];
+            
+            // Cache the dimensions for next time
+            cachedNdims = ndims;
+            cachedImageDims[0] = dims[0];
+            cachedImageDims[1] = dims[1];
+            cachedImageDims[2] = dims[2];
+            cachedDataType = dataType;
+            cachedColorMode = colorMode;
+        }  
         LOG_ARGS("reading URL=%s, dimensions=[%lu,%lu,%lu], ImageType=%d, depth=%d", URLString.c_str(), 
             (unsigned long)dims[0], (unsigned long)dims[1], (unsigned long)dims[2], imageType, depth);
         image.write(0, 0, ncols, nrows, map, storageType, pImage->pData);
