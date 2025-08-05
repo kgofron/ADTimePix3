@@ -77,7 +77,7 @@ const char* driverName = "ADTimePix";
 // Initialize static HTTP optimization members
 cpr::Session ADTimePix::httpSession;
 std::chrono::steady_clock::time_point ADTimePix::lastRequestTime = std::chrono::steady_clock::now();
-const std::chrono::milliseconds ADTimePix::REQUEST_THROTTLE_MS{10};
+const int ADTimePix::REQUEST_THROTTLE_MS;
 
 
 // -----------------------------------------------------------------------
@@ -1494,9 +1494,10 @@ asynStatus ADTimePix::sendConfiguration(const json& config) {
 void ADTimePix::throttleRequest() {
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRequestTime);
+    auto throttleTime = std::chrono::milliseconds(REQUEST_THROTTLE_MS);
     
-    if (elapsed < REQUEST_THROTTLE_MS) {
-        std::this_thread::sleep_for(REQUEST_THROTTLE_MS - elapsed);
+    if (elapsed < throttleTime) {
+        std::this_thread::sleep_for(throttleTime - elapsed);
     }
     
     lastRequestTime = std::chrono::steady_clock::now();

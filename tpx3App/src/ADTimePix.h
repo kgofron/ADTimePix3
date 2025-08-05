@@ -567,7 +567,7 @@ class ADTimePix : public ADDriver{
         // HTTP optimization members
         static cpr::Session httpSession;
         static std::chrono::steady_clock::time_point lastRequestTime;
-        static const std::chrono::milliseconds REQUEST_THROTTLE_MS{10}; // Minimum time between requests
+        static const int REQUEST_THROTTLE_MS = 10; // Minimum time between requests (milliseconds)
         
         // JSON optimization members - object pooling
         mutable json reusableJsonObject;
