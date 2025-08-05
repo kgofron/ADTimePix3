@@ -17,7 +17,7 @@ USR_CXXFLAGS += -DPREFIX_MAGICK_SYMBOLS
 USR_CXXFLAGS += -fno-rtti -fvisibility=hidden -fvisibility-inlines-hidden
 
 # Link-time optimizations
-USR_LDFLAGS += -flto -Wl,--gc-sections -Wl,--strip-all
+USR_LDFLAGS += -flto -Wl,--gc-sections
 
 INC += ADTimePix.h
 

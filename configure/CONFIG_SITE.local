@@ -6,7 +6,7 @@ OPT_CXXFLAGS_YES = -Os -ffunction-sections -fdata-sections
 OPT_CFLAGS_YES = -Os -ffunction-sections -fdata-sections
 
 # Link-time optimizations for smaller binaries
-OPT_LDFLAGS_YES = -Wl,--gc-sections -Wl,--strip-unused
+OPT_LDFLAGS_YES = -Wl,--gc-sections
 
 # Disable debug symbols in release builds for smaller size
 STRIP_YES = -s
