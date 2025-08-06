@@ -20,6 +20,9 @@
 #define ADTIMEPIX_MODIFICATION 0
 
 #include <nlohmann/json.hpp>
+#include <chrono>
+#include <thread>
+#include <cpr/cpr.h>
 using json = nlohmann::json;
 
 
@@ -560,6 +563,26 @@ class ADTimePix : public ADDriver{
         bool acquiring=false;
 
         epicsThreadId callbackThreadId;
+        
+        // HTTP optimization members
+        static cpr::Session httpSession;
+        static std::chrono::steady_clock::time_point lastRequestTime;
+        static const int REQUEST_THROTTLE_MS = 10; // Minimum time between requests (milliseconds)
+        
+        // JSON optimization members - object pooling
+        mutable json reusableJsonObject;
+        mutable std::string reusableJsonString;
+        
+        // Image processing optimization members
+        mutable size_t cachedImageDims[3];
+        mutable int cachedNdims;
+        mutable NDDataType_t cachedDataType;
+        mutable NDColorMode_t cachedColorMode;
+        mutable bool imageDimensionsChanged;
+        
+        // Memory optimization - string pools for frequent allocations
+        mutable std::string urlStringPool;
+        mutable std::string responseTextPool;
 
         // ----------------------------------------
         // DRIVERNAMESTANDARD Global Variables
@@ -622,6 +645,19 @@ class ADTimePix : public ADDriver{
         asynStatus configurePreviewSettings(json& server_j);
         asynStatus configureHistogramChannel(json& server_j);
         asynStatus sendConfiguration(const json& config);
+        
+        // HTTP optimization methods
+        cpr::Response makeOptimizedGetRequest(const std::string& url);
+        cpr::Response makeOptimizedPutRequest(const std::string& url, const std::string& body);
+        void throttleRequest();
+        
+        // JSON optimization methods
+        const std::string& getOptimizedJsonString(const json& jsonObj) const;
+        json& getReusableJsonObject() const;
+        
+        // Memory optimization methods
+        const std::string& getPooledUrlString(const std::string& endpoint) const;
+        void optimizeStringPool(std::string& pool, const std::string& content) const;
         
         int checkFile(std::string &fullFileName);
         asynStatus rowsCols(int *rows, int *cols, int *xChips, int *yChips, int *chipPelWidth);

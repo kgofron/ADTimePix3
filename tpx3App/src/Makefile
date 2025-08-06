@@ -7,9 +7,13 @@ ifeq (windows-x64, $(findstring windows-x64, $(T_A)))
 USR_CPPFLAGS += -D__X64
 endif
 
-USR_CPPFLAGS += -std=c++11
-
+# Performance optimizations - conservative for IOC compatibility
+USR_CPPFLAGS += -std=c++11 -DNDEBUG
+USR_CXXFLAGS += -O2 -ffast-math
 USR_CXXFLAGS += -DPREFIX_MAGICK_SYMBOLS
+
+# Memory optimizations - conservative for compatibility
+USR_CXXFLAGS += -fvisibility=hidden
 
 INC += ADTimePix.h
 

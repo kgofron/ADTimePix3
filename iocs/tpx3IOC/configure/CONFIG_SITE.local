@@ -1,0 +1,16 @@
+# IOC-specific configuration overrides
+# This file ensures IOC compilation compatibility
+
+# Use conservative optimization for IOC
+OPT_CXXFLAGS_YES = -O2
+OPT_CFLAGS_YES = -O2
+
+# Disable aggressive optimizations that might cause IOC issues
+USR_CXXFLAGS_Linux += -fno-lto
+
+# Ensure proper linking for IOC
+USR_LDFLAGS_Linux += 
+
+# Override any parent aggressive settings
+STATIC_BUILD = NO
+SHARED_LIBRARIES = YES

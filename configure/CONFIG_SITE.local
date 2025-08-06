@@ -1,0 +1,28 @@
+# ADTimePix3 Performance Optimization Configuration
+# This file contains local optimizations for bundle size and performance
+
+# Conservative optimizations for compatibility
+OPT_CXXFLAGS_YES = -O2
+OPT_CFLAGS_YES = -O2
+
+# Link-time optimizations - disabled for IOC compatibility
+# OPT_LDFLAGS_YES = -Wl,--gc-sections
+
+# Disable debug symbols in release builds for smaller size
+# STRIP_YES = -s
+
+# GraphicsMagick optimizations - disable unused features
+GM_CPPFLAGS = -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0
+GM_CPPFLAGS += -DBUILD_MODULES=0 -DMAGICKCORE_EXCLUDE_DEPRECATED=1
+
+# CPR library optimizations - disable unused features
+CPR_CPPFLAGS = -DCPR_DISABLE_CURL_GLOBAL_INIT -DCPR_USE_SYSTEM_CURL
+
+# JSON library optimizations
+JSON_CPPFLAGS = -DJSON_NOEXCEPTION -DJSON_USE_IMPLICIT_CONVERSIONS=0
+
+# Memory allocation optimizations
+USR_CPPFLAGS += -DMALLOC_CHECK_=0 -DMALLOC_PERTURB_=0
+
+# Add optimization flags to user flags
+USR_CXXFLAGS += $(GM_CPPFLAGS) $(CPR_CPPFLAGS) $(JSON_CPPFLAGS)
