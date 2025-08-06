@@ -1,15 +1,15 @@
 # ADTimePix3 Performance Optimization Configuration
 # This file contains local optimizations for bundle size and performance
 
-# Compiler optimizations for size and speed
-OPT_CXXFLAGS_YES = -Os -ffunction-sections -fdata-sections
-OPT_CFLAGS_YES = -Os -ffunction-sections -fdata-sections
+# Conservative optimizations for compatibility
+OPT_CXXFLAGS_YES = -O2
+OPT_CFLAGS_YES = -O2
 
-# Link-time optimizations for smaller binaries
-OPT_LDFLAGS_YES = -Wl,--gc-sections
+# Link-time optimizations - disabled for IOC compatibility
+# OPT_LDFLAGS_YES = -Wl,--gc-sections
 
 # Disable debug symbols in release builds for smaller size
-STRIP_YES = -s
+# STRIP_YES = -s
 
 # GraphicsMagick optimizations - disable unused features
 GM_CPPFLAGS = -DMAGICKCORE_QUANTUM_DEPTH=16 -DMAGICKCORE_HDRI_ENABLE=0
