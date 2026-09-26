@@ -15,7 +15,7 @@
   <grid_step_y>5</grid_step_y>
   <widget type="embedded" version="2.0.0">
     <name>Linking Container</name>
-    <file>FileLoad.opi</file>
+    <file>FileLoad.bob</file>
     <y>31</y>
     <width>880</width>
     <height>405</height>

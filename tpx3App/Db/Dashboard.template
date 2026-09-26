@@ -39,6 +39,7 @@ record(bo, "$(P)$(R)RefreshConnection")
     field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_REFRESH_CONNECTION")
     field(ZNAM, "No")
     field(ONAM, "Yes")
+    field(HIGH, "0.1")
     field(DESC, "Refresh connection status")
 }
 
@@ -49,6 +50,7 @@ record(bo, "$(P)$(R)RefreshPixelConfig")
     field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_REFRESH_PIXEL_CONFIG")
     field(ZNAM, "No")
     field(ONAM, "Yes")
+    field(HIGH, "0.1")
     field(DESC, "Refresh PixelConfig vs BPC file")
     # Same pattern as BPC/MaskBPC: after driver fills buffer, process waveform so VAL/NORD update (caget, Phoebus).
     field(FLNK, "$(P)$(R)PixelConfigDiff.PROC CA")
@@ -61,6 +63,7 @@ record(bo, "$(P)$(R)ApplyConfig")
     field(OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_APPLY_CONFIG")
     field(ZNAM, "No")
     field(ONAM, "Yes")
+    field(HIGH, "0.1")
     field(DESC, "Apply current PV config to SERVAL")
 }
 

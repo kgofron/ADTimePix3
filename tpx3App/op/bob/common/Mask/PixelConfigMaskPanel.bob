@@ -31,7 +31,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Hint</name>
-    <text>Uses BPCFilePath/BPCFileName. Packed-pixel |SERVAL − BPC| heatmap updates after refresh. Refresh also writes *_masked_pels.json (see block below).</text>
+    <text>Use Verify BPC on the BPC/DACS screen to update the packed-pixel |SERVAL − BPC| heatmap and write *_masked_pels.json (see block below).</text>
     <x>5</x>
     <y>28</y>
     <width>650</width>
@@ -43,30 +43,25 @@
     <actions>
     </actions>
   </widget>
-  <widget type="bool_button" version="2.0.0">
-    <name>RefreshPixelConfigBtn</name>
-    <pv_name>$(P)$(R)RefreshPixelConfig</pv_name>
-    <bit>-1</bit>
+  <widget type="action_button" version="3.0.0">
+    <name>BPCDACSBtn</name>
+    <actions>
+      <action type="open_display">
+        <description>BPC and DACS setup</description>
+        <file>../Setup/FileBPCdacs.bob</file>
+        <target>tab</target>
+      </action>
+    </actions>
+    <text>BPC / DACS...</text>
     <x>420</x>
     <y>3</y>
     <width>120</width>
     <height>28</height>
-    <off_label>Refresh</off_label>
-    <off_color>
-      <color red="220" green="220" blue="240">
-      </color>
-    </off_color>
-    <on_label>Go</on_label>
-    <on_color>
+    <background_color>
       <color red="120" green="200" blue="255">
       </color>
-    </on_color>
-    <background_color>
-      <color red="240" green="240" blue="240">
-      </color>
     </background_color>
-    <actions>
-    </actions>
+    <tooltip>Open BPC/DACS setup to upload or verify the selected BPC file.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>L0</name>

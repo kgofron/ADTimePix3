@@ -239,6 +239,46 @@ $(pv_value)</tooltip>
     </background_color>
     <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>VerifyBPCBtn</name>
+    <actions>
+      <action type="write_pv">
+        <description>Verify BPC</description>
+        <pv_name>$(P)$(R)RefreshPixelConfig</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
+    <text>Verify BPC</text>
+    <x>205</x>
+    <y>240</y>
+    <width>95</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <tooltip>Read Serval PixelConfig and compare it with the selected BPC file.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>ViewBPCDifferencesBtn</name>
+    <actions>
+      <action type="open_display">
+        <description>View BPC differences</description>
+        <file>../Mask/Mask.bob</file>
+        <target>tab</target>
+      </action>
+    </actions>
+    <text>View Differences...</text>
+    <x>305</x>
+    <y>240</y>
+    <width>135</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <tooltip>Open the detailed BPC mask and Serval PixelConfig comparison.</tooltip>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <text>Write status code</text>
