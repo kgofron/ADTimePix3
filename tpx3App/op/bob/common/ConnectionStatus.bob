@@ -84,16 +84,36 @@
         <value>1</value>
       </action>
     </actions>
-    <text>Refresh</text>
-    <x>270</x>
-    <y>18</y>
-    <width>75</width>
-    <height>24</height>
+    <text>Refresh Status</text>
+    <x>135</x>
+    <y>1</y>
+    <width>100</width>
+    <height>20</height>
     <background_color>
       <color red="115" green="223" blue="255">
       </color>
     </background_color>
-    <tooltip>$(actions)</tooltip>
+    <tooltip>Read the current Serval destination, detector, and measurement configuration without changing them.</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>ApplyDestinationBtn</name>
+    <actions>
+      <action type="write_pv">
+        <description>Apply destination</description>
+        <pv_name>$(P)$(R)ApplyConfig</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
+    <text>Apply Destination</text>
+    <x>240</x>
+    <y>1</y>
+    <width>105</width>
+    <height>20</height>
+    <background_color>
+      <color red="115" green="223" blue="255">
+      </color>
+    </background_color>
+    <tooltip>Write the configured file and stream destinations to Serval. This does not upload BPC or DACS files.</tooltip>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>StatusMsg</name>

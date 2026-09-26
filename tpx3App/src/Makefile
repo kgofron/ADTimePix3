@@ -30,6 +30,7 @@ INC += serval_destination.h
 INC += serval_health.h
 INC += serval_measurement.h
 INC += serval_pixel_config.h
+INC += serval_reconnect.h
 INC += serval_stream_framing.h
 INC += serval_stream_validation.h
 
@@ -55,6 +56,7 @@ LIB_SRCS += serval_health.cpp
 LIB_SRCS += serval_http_client.cpp
 LIB_SRCS += serval_measurement.cpp
 LIB_SRCS += serval_pixel_config.cpp
+LIB_SRCS += serval_reconnect.cpp
 LIB_SRCS += serval_stream_framing.cpp
 LIB_SRCS += serval_stream_validation.cpp
 LIB_SRCS += serval_stream.cpp

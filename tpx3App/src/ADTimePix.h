@@ -1020,8 +1020,8 @@ class ADTimePix : public ADDriver{
         void publishDashboardFailure(bool servalReachable);
         /** Map SERVAL/detector link to ADStatus (DetectorState) and ADStatusMessage. */
         void updateStatusFromConnection(bool servalOk, bool detOk);
-        /** On disconnect->connect: push PV config, refresh detector, optional BPC/DACS upload. */
-        void refreshOnReconnect();
+        /** On disconnect->connect: reconcile read-only Serval state. */
+        asynStatus refreshOnReconnect();
 
         // ----------------------------------------
         // DRIVERNAMESTANDARD Global Variables
@@ -1040,7 +1040,8 @@ class ADTimePix : public ADDriver{
         // NOTE - THIS MAY ALSO NEED TO CHANGE IF SERIAL # NOT USED
         asynStatus initialServerCheckConnection();
         /** Lightweight connection check: updates ServalConnected_RBV, DetConnected_RBV, SDK version, ADStatusMessage. */
-        asynStatus checkConnection(bool publishHttpStatus = true);
+        asynStatus checkConnection(bool publishHttpStatus = true,
+                                   bool publishConnectionStatus = true);
 
         void printConnectedDeviceInfo();
 

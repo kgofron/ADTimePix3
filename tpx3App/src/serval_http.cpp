@@ -19,6 +19,7 @@
 #include "serval_http.h"
 #include "serval_measurement.h"
 #include "serval_pixel_config.h"
+#include "serval_reconnect.h"
 
 #include <algorithm>
 #include <cctype>
@@ -264,22 +265,32 @@ void ADTimePix::updateStatusFromConnection(bool servalOk, bool detOk) {
     }
 }
 
-void ADTimePix::refreshOnReconnect() {
-    FLOW("SERVAL/detector reconnect: refreshing config, detector info, calibrations");
-    (void)fileWriter();
-    (void)initAcquisition();
-    (void)getServer();
-    (void)getDetector();
-    (void)getMeasurementConfig();
+asynStatus ADTimePix::refreshOnReconnect() {
+    FLOW("SERVAL/detector reconnect: reconciling read-only state");
+    using ADTimePix3ServalReconnect::Readback;
+    const ADTimePix3ServalReconnect::Result result =
+        ADTimePix3ServalReconnect::refresh([this](Readback readback) {
+            switch (readback) {
+            case Readback::Destination:
+                return getServer() == asynSuccess;
+            case Readback::Detector:
+                return getDetector(false) == asynSuccess;
+            case Readback::MeasurementConfig:
+                return getMeasurementConfig() == asynSuccess;
+            }
+            return false;
+        });
 
-    std::string bpcName, dacsName;
-    getStringParam(ADTimePixBPCFileName, bpcName);
-    getStringParam(ADTimePixDACSFileName, dacsName);
-    if (!bpcName.empty()) (void)uploadBPC();
-    if (!dacsName.empty()) (void)uploadDACS();
-
-    updateStatusFromConnection(true, true);
+    if (result.complete()) {
+        updateStatusFromConnection(true, true);
+    } else {
+        ERR_ARGS("Reconnect state refresh incomplete: destination=%d detector=%d measurementConfig=%d",
+                 result.destination, result.detector, result.measurementConfig);
+        setStringParam(ADStatusMessage, "Connected; reconnect state refresh incomplete");
+        setIntegerParam(ADStatus, ADStatusError);
+    }
     callParamCallbacks();
+    return result.complete() ? asynSuccess : asynError;
 }
 
 asynStatus ADTimePix::initialServerCheckConnection(){
@@ -330,7 +341,8 @@ asynStatus ADTimePix::initialServerCheckConnection(){
  * Used by connection poll and RefreshConnection PV.
  * @return asynSuccess if SERVAL and detector are connected, asynError otherwise
  */
-asynStatus ADTimePix::checkConnection(bool publishHttpStatus){
+asynStatus ADTimePix::checkConnection(bool publishHttpStatus,
+                                      bool publishConnectionStatus){
     const std::string dashboard = this->serverURL + std::string("/dashboard");
     cpr::Response r = ADTimePix3ServalHttp::get(dashboard, 5000);
     if (publishHttpStatus) {
@@ -354,8 +366,10 @@ asynStatus ADTimePix::checkConnection(bool publishHttpStatus){
         }
     }
 
-    updateStatusFromConnection(servalOk, detOk);
-    callParamCallbacks();
+    if (publishConnectionStatus) {
+        updateStatusFromConnection(servalOk, detOk);
+        callParamCallbacks();
+    }
     return (servalOk && detOk) ? asynSuccess : asynError;
 }
 
@@ -372,16 +386,21 @@ void ADTimePix::connectionPollThread() {
             connectionPollSkipOnce_ = 0;
             continue;
         }
-        (void)checkConnection(false);
+        (void)checkConnection(false, false);
         int servalNow = 0, detNow = 0;
         getIntegerParam(ADTimePixServalConnected, &servalNow);
         getIntegerParam(ADTimePixDetConnected, &detNow);
-        // On reconnect: full late-init (config, detector, SDK version, calibrations) — see issue #14
+        bool refreshComplete = true;
+        // Automatic reconnect is observational only. Explicit actions apply configuration/calibrations.
         if (servalNow && detNow && (lastServalConnected_ == 0 || lastDetConnected_ == 0)) {
-            refreshOnReconnect();
+            refreshComplete = refreshOnReconnect() == asynSuccess;
+        } else {
+            updateStatusFromConnection(servalNow != 0, detNow != 0);
+            callParamCallbacks();
         }
-        lastServalConnected_ = servalNow;
-        lastDetConnected_ = detNow;
+        // Retry a partial read-only reconciliation on the next poll.
+        lastServalConnected_ = refreshComplete ? servalNow : 0;
+        lastDetConnected_ = refreshComplete ? detNow : 0;
     }
 }
 

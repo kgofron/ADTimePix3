@@ -505,19 +505,27 @@ asynStatus ADTimePix::writeInt32(asynUser* pasynUser, epicsInt32 value){
     //    status = getServer();
     }
     else if(function == ADTimePixRefreshConnection) {
-        status = checkConnection();
-        setIntegerParam(ADTimePixRefreshConnection, 0);  // Reset so PV can be triggered again
+        const ADTimePix3Action::OneShotDecision action =
+            ADTimePix3Action::oneShotDecision(value);
+        setIntegerParam(ADTimePixRefreshConnection, action.storedValue);
+        if (action.execute) status = checkConnection();
     }
     else if(function == ADTimePixRefreshPixelConfig) {
-        if (addr == 0 && value == 1) {
+        const ADTimePix3Action::OneShotDecision action =
+            ADTimePix3Action::oneShotDecision(value);
+        setIntegerParam(0, ADTimePixRefreshPixelConfig, action.storedValue);
+        if (addr == 0 && action.execute) {
             status = refreshPixelConfigFromServal();
-            setIntegerParam(0, ADTimePixRefreshPixelConfig, 0);
         }
     }
     else if(function == ADTimePixApplyConfig) {
-        status = fileWriter();
-        if (status == asynSuccess) status = getServer();
-        setIntegerParam(ADTimePixApplyConfig, 0);  // Reset so PV can be triggered again
+        const ADTimePix3Action::OneShotDecision action =
+            ADTimePix3Action::oneShotDecision(value);
+        setIntegerParam(ADTimePixApplyConfig, action.storedValue);
+        if (action.execute) {
+            status = fileWriter();
+            if (status == asynSuccess) status = getServer();
+        }
     }
     else if(function == ADTimePixWriteProcessedImg) {
         if (value == 1) {

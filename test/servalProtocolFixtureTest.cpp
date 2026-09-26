@@ -20,6 +20,7 @@
 #include "serval_http.h"
 #include "serval_measurement.h"
 #include "serval_pixel_config.h"
+#include "serval_reconnect.h"
 #include "serval_stream_framing.h"
 #include "serval_stream_validation.h"
 
@@ -505,6 +506,48 @@ void testProductionHttpClient()
     testOk(ADTimePix3ServalHttp::kDefaultTimeoutMs == 10000,
            "production HTTP helpers use the documented ten-second default timeout");
 }
+
+void testReconnectPolicy()
+{
+    using ADTimePix3ServalReconnect::Readback;
+
+    FakeHttpResponse response;
+    response.body = "{}";
+    std::vector<FakeHttpRequest> requests;
+    const ADTimePix3ServalReconnect::Result result =
+        ADTimePix3ServalReconnect::refresh([&](Readback readback) {
+            FakeServalHttpServer server(response);
+            const cpr::Response received = ADTimePix3ServalHttp::get(
+                server.baseUrl() + ADTimePix3ServalReconnect::path(readback), 1000);
+            if (server.waitForRequest(kFixtureDeadline)) {
+                requests.push_back(server.request());
+            }
+            return received.status_code == 200;
+        });
+
+    testOk(result.complete() && requests.size() == 3,
+           "automatic reconnect completes all required readbacks");
+    const auto isGetFor = [](const FakeHttpRequest& request, const char* resource) {
+        const std::size_t query = request.target.find('?');
+        return request.method == "GET" && request.target.substr(0, query) == resource;
+    };
+    testOk(requests.size() == 3 &&
+               isGetFor(requests[0], "/server/destination") &&
+               isGetFor(requests[1], "/detector") &&
+               isGetFor(requests[2], "/measurement/config"),
+           "automatic reconnect sends only the three documented GET requests");
+
+    std::vector<Readback> attempted;
+    const ADTimePix3ServalReconnect::Result partial =
+        ADTimePix3ServalReconnect::refresh([&](Readback readback) {
+            attempted.push_back(readback);
+            return readback != Readback::Detector;
+        });
+    testOk(!partial.complete() && partial.destination && !partial.detector &&
+               partial.measurementConfig && attempted.size() == 3,
+           "automatic reconnect reports a partial refresh and still attempts every readback");
+}
+
 
 void testMeasurementResponseValidation()
 {
@@ -1554,13 +1597,14 @@ void testOneShotActions()
 
 MAIN(servalProtocolFixtureTest)
 {
-    testPlan(256);
+    testPlan(259);
     testTcpScript();
     testTcpSilenceIsBounded();
     testProductionNetworkClient();
     testConsumeOnceStreamFraming();
     testHttpRequestAndResponse();
     testProductionHttpClient();
+    testReconnectPolicy();
     testMeasurementResponseValidation();
     testDetectorConfigBooleanSerialization();
     testDetectorResponseValidation();

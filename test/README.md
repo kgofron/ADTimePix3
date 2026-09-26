@@ -29,6 +29,11 @@ bytes belonging to later messages. Image fixtures also verify Serval `bitDepth` 
 `dataSize` sizing for 8-, 16-, and 32-bit rasters, including MPX3 integrated
 preview frames.
 
+Reconnect-policy coverage drives the production read-only policy against fake
+Serval HTTP peers. It verifies that automatic reconnect requests only
+`GET /server/destination`, `GET /detector`, and `GET /measurement/config`, and
+that a partial refresh is reported only after every required readback is tried.
+
 The test product also exercises the production rectangular mask-geometry
 helper. It verifies width-based row-major indexing, clipped rectangle/circle
 drawing, non-mask-bit preservation, and rejection of undersized waveforms.
