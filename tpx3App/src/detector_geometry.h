@@ -19,20 +19,22 @@ struct Geometry {
     int xChips;
     int yChips;
     int chipWidth;
+    int chipHeight;
 };
 
 enum class Status {
     Ok,
     InvalidArgument,
     PixelCountMismatch,
-    NonSquareChip,
     NonIntegralChipGrid
 };
 
 /*
  * TPX3 Serval Info.RowLen is the number of chips across the detector and
  * Info.NumberOfRows is the assembled image height in pixels. Derive the
- * square-chip width and assembled raster, rejecting inconsistent metadata.
+ * independent chip width and height and assembled raster, rejecting
+ * inconsistent metadata. This supports square TPX3/MPX3 chips and the
+ * rectangular 448x512 TPX4 chip without family-specific constants.
  */
 Status derive(int pixelCount, int rowLength, int numberOfChips,
               int numberOfRows, Geometry& geometry);

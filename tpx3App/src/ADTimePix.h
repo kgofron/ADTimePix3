@@ -79,12 +79,12 @@
 #define ADTimePixSW_versionString           "TPX3_SW_VER"           // (asynOctet,         r)      SW_version
 #define ADTimePixFW_versionString           "TPX3_FW_VER"           // (asynOctet,         r)      FW_version
 #define ADTimePixPixCountString             "TPX3_PEL_CNT"          // (asynInt32,         r)      PixCount
-#define ADTimePixRowLenString               "TPX3_ROWLEN"           // (asynInt32,         r)      Serval RowLen (TPX3 chips per detector row)
+#define ADTimePixRowLenString               "TPX3_ROWLEN"           // (asynInt32,         r)      Serval RowLen (chips per detector row)
 #define ADTimePixNumberOfChipsString        "TPX3_NUM_CHIPS"        // (asynInt32,         r)      NumberOfChip
 #define ADTimePixNumberOfRowsString         "TPX3_NUM_ROWS"         // (asynInt32,         r)      NumberOfRows
 #define ADTimePixMpxTypeString              "TPX3_MPX_TYPE"         // (asynInt32,         r)      MpxType
-#define ADTimePixChipTypeString             "TPX3_CHIP_TYPE"        // (asynOctet,         r)      ChipType (MPX3, TPX3)
-#define ADTimePixDetectorFamilyString       "TPX3_DETECTOR_FAMILY"  // (asynInt32,         r)      0=Unknown, 1=TPX3, 2=MPX3
+#define ADTimePixChipTypeString             "TPX3_CHIP_TYPE"        // (asynOctet,         r)      ChipType (MPX3, TPX3, TPX4)
+#define ADTimePixDetectorFamilyString       "TPX3_DETECTOR_FAMILY"  // (asynInt32,         r)      0=Unknown, 1=TPX3, 2=MPX3, 3=TPX4
 #define ADTimePixCapTdcString               "TPX3_CAP_TDC"          // (asynInt32,         r)      TDC / ToF hardware supported
 #define ADTimePixCapTofHistString           "TPX3_CAP_TOF_HIST"     // (asynInt32,         r)      ToF histogram stream supported
 #define ADTimePixCapDualPreviewString       "TPX3_CAP_DUAL_PREVIEW" // (asynInt32,         r)      Two preview image layers

@@ -11,6 +11,7 @@
 #include "ADTimePixLog.h"
 #include "bpc_mask_semantics.h"
 #include "bpc_file_io.h"
+#include "detector_geometry.h"
 #include "serval_config.h"
 #include "serval_dacs.h"
 #include "serval_dashboard.h"
@@ -1073,6 +1074,18 @@ void ADTimePix::exportMaskedPelsJsonFromBpcBuffer(
 
 asynStatus ADTimePix::refreshPixelConfigFromServal() {
     FLOW_ARGS("fetch per chip, compare to BPC on disk");
+    if (detectorFamily_ == DetectorFamily::Unknown) {
+        (void)getDetector();
+    }
+    if (!detectorCapabilities_.supportsPixelConfig) {
+        const std::string message = std::string(detectorFamilyName(detectorFamily_)) +
+            " PixelConfig refresh blocked: encoding and coordinate mapping are not qualified";
+        setStringParam(ADTimePixWriteMsg, message.c_str());
+        setStringParam(0, ADTimePixPixelConfigStatus, message.c_str());
+        callParamCallbacks();
+        ERR_ARGS("%s", message.c_str());
+        return asynError;
+    }
     asynStatus status = asynSuccess;
     std::vector<std::uint8_t> bpcData;
     const bool haveBpc = readBPCfile(bpcData) == asynSuccess;
@@ -1324,6 +1337,23 @@ asynStatus ADTimePix::getDetector(bool publishHttpStatus){
         return asynError;
     }
 
+    ADTimePix3DetectorGeometry::Geometry geometry;
+    const ADTimePix3DetectorGeometry::Status geometryStatus =
+        ADTimePix3DetectorGeometry::derive(
+            snapshot.pixelCount, snapshot.rowLength, snapshot.numberOfChips,
+            snapshot.numberOfRows, geometry);
+    if (geometryStatus != ADTimePix3DetectorGeometry::Status::Ok) {
+        const std::string message = std::string("Invalid detector geometry: ") +
+            ADTimePix3DetectorGeometry::statusMessage(geometryStatus);
+        ERR_ARGS("getDetector: %s", message.c_str());
+        setIntegerParam(ADTimePixDetConnected, 0);
+        setStringParam(ADTimePixWriteMsg, message.c_str());
+        setStringParam(ADStatusMessage, message.c_str());
+        setIntegerParam(ADStatus, ADStatusError);
+        callParamCallbacks();
+        return asynError;
+    }
+
     try {
         json detector_j = std::move(snapshot.response);
         const json& info = detector_j["Info"];
@@ -1346,8 +1376,8 @@ asynStatus ADTimePix::getDetector(bool publishHttpStatus){
         setIntegerParam(ADTimePixRowLen,        snapshot.rowLength);
         setIntegerParam(ADTimePixNumberOfChips, snapshot.numberOfChips);
         setIntegerParam(ADTimePixNumberOfRows,  snapshot.numberOfRows);
-        setIntegerParam(ADMaxSizeY,             snapshot.numberOfRows);
-        setIntegerParam(ADMaxSizeX,             snapshot.pixelCount / snapshot.numberOfRows);
+        setIntegerParam(ADMaxSizeY,             geometry.rows);
+        setIntegerParam(ADMaxSizeX,             geometry.cols);
         setIntegerParam(ADTimePixMpxType,       snapshot.mpxType);
 
         std::string chipType;
@@ -1665,6 +1695,17 @@ asynStatus ADTimePix::getServer(){
  * @return: status
  */
 asynStatus ADTimePix::uploadDACS(){
+    if (detectorFamily_ == DetectorFamily::Unknown) {
+        (void)getDetector();
+    }
+    if (!detectorCapabilities_.supportsCalibrationUpload) {
+        const std::string message = std::string(detectorFamilyName(detectorFamily_)) +
+            " DACS upload blocked: calibration format is not qualified";
+        setStringParam(ADTimePixWriteMsg, message.c_str());
+        callParamCallbacks();
+        ERR_ARGS("%s", message.c_str());
+        return asynError;
+    }
     asynStatus status = asynSuccess;
     FLOW("Initializing Chips/DACS detector information");
     std::string dacs_file, filePath, fileName, resolvedPath;
@@ -2477,6 +2518,15 @@ asynStatus ADTimePix::initAcquisition(){
         if (detectorFamily_ == DetectorFamily::Unknown) {
             (void)getDetector();
         }
+        if (detectorFamily_ == DetectorFamily::Unknown) {
+            setIntegerParam(ADTimePixHttpCode, 409);
+            setStringParam(ADTimePixWriteMsg,
+                           "Detector family is unknown; configuration write blocked");
+            setStringParam(ADStatusMessage,
+                           "Detector family is unknown; refresh connection first");
+            callParamCallbacks();
+            return asynError;
+        }
         //printf("det_config=%s\n",config_j.dump(3,' ', true).c_str());
 
         getIntegerParam(ADTriggerMode, &intNum);
@@ -2549,7 +2599,7 @@ asynStatus ADTimePix::initAcquisition(){
         getIntegerParam(ADTimePixTriggerOut, &intNum);
         config_j["TriggerOut"] = intNum;
 
-        if (detectorFamily_ != DetectorFamily::MPX3) {
+        if (detectorFamily_ == DetectorFamily::TPX3) {
             getDoubleParam(ADTimePixTriggerDelay, &doubleNum);
             config_j["TriggerDelay"] = doubleNum;
             getDoubleParam(ADTimePixGlobalTimestampInterval, &doubleNum);
@@ -2580,7 +2630,7 @@ asynStatus ADTimePix::initAcquisition(){
                 setStringParam(ADTimePixWriteMsg, "PeriphClk80 must be 0 or 1");
                 return asynError;
             }
-        } else {
+        } else if (detectorFamily_ == DetectorFamily::MPX3) {
             stripTpx3DetectorConfigFields(config_j);
             getIntegerParam(ADTimePixBothCounters, &intNum);
             config_j["BothCounters"] = (intNum != 0);
@@ -2616,6 +2666,12 @@ asynStatus ADTimePix::initAcquisition(){
                 idelay.push_back(intNum);
             }
             config_j["IDelayConfig"] = idelay;
+        } else if (detectorFamily_ == DetectorFamily::TPX4) {
+            /* Keep the TPX4 PUT restricted to the shared fields above. The
+             * 4.1.6 experimental schema does not expose TPX3 TDC/clock fields
+             * or MPX3 threshold fields for TPX4. Fields returned by the TPX4
+             * GET, including TriggerDelay and GlobalTimestampInterval, are
+             * preserved unchanged. */
         }
 
         getIntegerParam(ADTimePixLogLevel, &intNum);

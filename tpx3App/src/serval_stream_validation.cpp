@@ -16,9 +16,8 @@
 namespace ADTimePix3Stream {
 namespace {
 
-// The driver supports layouts of at most eight 256x256 chips. A linear
-// eight-chip layout determines the per-axis ceiling; all layouts share the
-// total-pixel ceiling.
+// The current safety ceiling is the established eight-chip TPX3 raster. It
+// also bounds the smaller rectangular 448x512 single-chip TPX4 candidate.
 constexpr std::size_t kSupportedChipPixels = 256U * 256U;
 constexpr std::size_t kMaxSupportedChips = 8U;
 constexpr std::size_t kMaxSupportedPixels = kMaxSupportedChips * kSupportedChipPixels;

@@ -137,7 +137,7 @@ record(stringin, "$(P)$(R)ChipType_RBV"){
   field(DTYP, "asynOctetRead")
   field(INP, "@asyn($(PORT),$(ADDR),$(TIMEOUT))TPX3_CHIP_TYPE")
   field(SCAN, "I/O Intr")
-  field(DESC, "ChipType (MPX3/TPX3)")
+  field(DESC, "ChipType (MPX3/TPX3/TPX4)")
 }
 record(mbbi, "$(P)$(R)DetectorFamily_RBV"){
   field(DTYP, "asynInt32")
@@ -148,6 +148,8 @@ record(mbbi, "$(P)$(R)DetectorFamily_RBV"){
   field(ONVL, "1")
   field(TWST, "MPX3")
   field(TWVL, "2")
+  field(THST, "TPX4")
+  field(THVL, "3")
   field(SCAN, "I/O Intr")
   field(DESC, "Runtime detector family")
 }
@@ -808,4 +810,3 @@ record(mbbi, "$(P)$(R)DetOrient_RBV")
    field(DESC, "Detector layout orientation RBV")
    info(archive, "Monitor, 00:00:01, VAL")
 }
-

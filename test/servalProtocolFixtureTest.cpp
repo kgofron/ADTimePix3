@@ -1095,6 +1095,15 @@ void testDetectorResponseValidation()
                snapshot.numberOfChips == 4 && snapshot.numberOfRows == 512 &&
                snapshot.mpxType == 3 && snapshot.response["Config"]["BiasEnabled"] == false,
            "detector parser accepts a complete response and extracts bounded geometry");
+    const std::string tpx4 =
+        "{\"Info\":{\"PixCount\":229376,\"RowLen\":1,\"NumberOfChips\":1,"
+        "\"NumberOfRows\":512,\"MpxType\":7,\"ChipType\":\"TPX4\"},"
+        "\"Config\":{\"BiasEnabled\":true}}";
+    testOk(ADTimePix3ServalDetector::parseResponse(tpx4, snapshot) == ParseError::None &&
+               snapshot.pixelCount == 229376 && snapshot.rowLength == 1 &&
+               snapshot.numberOfChips == 1 && snapshot.numberOfRows == 512 &&
+               snapshot.mpxType == 7,
+           "detector parser accepts captured single-chip TPX4 geometry");
     testOk(ADTimePix3ServalDetector::parseResponse("", snapshot) == ParseError::EmptyBody &&
                snapshot.response.is_object() && snapshot.response.empty(),
            "detector parser rejects an empty HTTP-200 body");
@@ -1133,6 +1142,31 @@ void testDetectorResponseValidation()
                "\"NumberOfChips\":4,\"NumberOfRows\":512,\"MpxType\":3},"
                "\"Config\":{}}", snapshot) == ParseError::InvalidGeometry,
            "detector parser rejects unsigned geometry beyond the EPICS integer range");
+}
+
+void testDetectorFamilyIdentification()
+{
+    testOk(detectDetectorFamily(7, "TPX4", "60000123") == DetectorFamily::TPX4,
+           "detector family identifies the captured TPX4 metadata");
+    testOk(detectDetectorFamily(7, "", "") == DetectorFamily::TPX4,
+           "detector family recognizes TPX4 MpxType 7 without ChipType");
+    testOk(detectDetectorFamily(0, "tpx4", "") == DetectorFamily::TPX4,
+           "detector family matches TPX4 ChipType case-insensitively");
+
+    const DetectorCapabilities tpx4Capabilities =
+        capabilitiesForFamily(DetectorFamily::TPX4);
+    testOk(!tpx4Capabilities.supportsTdc &&
+               !tpx4Capabilities.supportsTofHistogram &&
+               !tpx4Capabilities.supportsDualPreview &&
+               !tpx4Capabilities.supportsImageThresholds &&
+               !tpx4Capabilities.supportsPixelConfig &&
+               !tpx4Capabilities.supportsCalibrationUpload &&
+               tpx4Capabilities.previewLayerCount == 1 &&
+               tpx4Capabilities.bpcBytesPerPel == 0 &&
+               tpx4Capabilities.bpcThresholdSlices == 0,
+           "TPX4 exposes one preview layer while other features remain fail-closed");
+    testOk(std::string(detectorFamilyName(DetectorFamily::TPX4)) == "TPX4",
+           "detector family exposes the TPX4 operator name");
 }
 
 void testDacUpdateValidation()
@@ -1536,6 +1570,16 @@ void testStreamHeaderValidation()
                limits, layout) == ImageHeaderError::None &&
                layout.pixelCount == 512U * 512U && layout.payloadBytes == 512U * 512U * 2U,
            "production validator accepts a bounded uint16 image layout");
+    const ADTimePix3Stream::ImageFrameLimits tpx4Limits =
+        ADTimePix3Stream::detectorImageFrameLimits(448, 512, 448 * 512);
+    testOk(ADTimePix3Stream::validateJsonImageHeader(
+               nlohmann::json{{"width", 448}, {"height", 512},
+                              {"pixelFormat", "uint16"}, {"dataSize", 448 * 512 * 2}},
+               tpx4Limits, layout) == ImageHeaderError::None &&
+               layout.width == 448 && layout.height == 512 &&
+               layout.pixelCount == 448U * 512U &&
+               layout.payloadBytes == 448U * 512U * 2U,
+           "production validator accepts a bounded TPX4 candidate image header");
     testOk(ADTimePix3Stream::validateJsonImageHeader(
                nlohmann::json{{"width", 1024}, {"height", 512}, {"pixelFormat", "UINT32"}},
                limits, layout) == ImageHeaderError::None &&
@@ -1831,6 +1875,7 @@ void testBpcMaskSemantics()
 {
     testOk(ADTimePix3BpcMask::operatorMaskSupported(DetectorFamily::TPX3) &&
                ADTimePix3BpcMask::operatorMaskSupported(DetectorFamily::MPX3) &&
+               !ADTimePix3BpcMask::operatorMaskSupported(DetectorFamily::TPX4) &&
                !ADTimePix3BpcMask::operatorMaskSupported(DetectorFamily::Unknown),
            "operator mask writes are supported only for documented TPX3 and MPX3 families");
     testOk(ADTimePix3BpcMask::bytesPerPixel(DetectorFamily::TPX3) == 1 &&
@@ -1958,22 +2003,29 @@ void testDetectorGeometry()
                65536, 1, 1, 256, geometry) == Status::Ok &&
                geometry.rows == 256 && geometry.cols == 256 &&
                geometry.xChips == 1 && geometry.yChips == 1 &&
-               geometry.chipWidth == 256,
+               geometry.chipWidth == 256 && geometry.chipHeight == 256,
            "detector geometry derives a 256 by 256 single-chip raster");
 
     testOk(ADTimePix3DetectorGeometry::derive(
                262144, 2, 4, 512, geometry) == Status::Ok &&
                geometry.rows == 512 && geometry.cols == 512 &&
                geometry.xChips == 2 && geometry.yChips == 2 &&
-               geometry.chipWidth == 256,
+               geometry.chipWidth == 256 && geometry.chipHeight == 256,
            "detector geometry derives a two-chip-wide TPX3 quad");
 
     testOk(ADTimePix3DetectorGeometry::derive(
                524288, 4, 8, 512, geometry) == Status::Ok &&
                geometry.rows == 512 && geometry.cols == 1024 &&
                geometry.xChips == 4 && geometry.yChips == 2 &&
-               geometry.chipWidth == 256,
+               geometry.chipWidth == 256 && geometry.chipHeight == 256,
            "detector geometry matches the captured four-across TPX3 metadata");
+
+    testOk(ADTimePix3DetectorGeometry::derive(
+               229376, 1, 1, 512, geometry) == Status::Ok &&
+               geometry.rows == 512 && geometry.cols == 448 &&
+               geometry.xChips == 1 && geometry.yChips == 1 &&
+               geometry.chipWidth == 448 && geometry.chipHeight == 512,
+           "detector geometry derives the captured rectangular TPX4 raster");
 
     testOk(ADTimePix3DetectorGeometry::derive(
                524288, 1024, 8, 512, geometry) == Status::PixelCountMismatch,
@@ -1984,8 +2036,8 @@ void testDetectorGeometry()
            "detector geometry rejects a raster whose pixel count disagrees");
 
     testOk(ADTimePix3DetectorGeometry::derive(
-               80, 4, 8, 8, geometry) == Status::NonSquareChip,
-           "detector geometry rejects a non-square per-chip pixel count");
+               80, 4, 8, 8, geometry) == Status::NonIntegralChipGrid,
+           "detector geometry rejects non-integral rectangular chip dimensions");
 
     testOk(ADTimePix3DetectorGeometry::isTwoQuadLayout(
                "41000024", "4100003a") &&
@@ -2257,7 +2309,7 @@ void testRollingWindowSum()
 
 MAIN(servalProtocolFixtureTest)
 {
-    testPlan(358);
+    testPlan(366);
     testTcpScript();
     testTcpSilenceIsBounded();
     testProductionNetworkClient();
@@ -2270,6 +2322,7 @@ MAIN(servalProtocolFixtureTest)
     testMeasurementResponseValidation();
     testDetectorConfigBooleanSerialization();
     testDetectorResponseValidation();
+    testDetectorFamilyIdentification();
     testDacUpdateValidation();
     testDestinationResponseValidation();
     testDashboardResponseValidation();

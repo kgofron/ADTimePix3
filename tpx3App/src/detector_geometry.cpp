@@ -8,47 +8,41 @@
 
 #include "detector_geometry.h"
 
-#include <cmath>
 #include <cstdint>
-#include <limits>
 
 namespace ADTimePix3DetectorGeometry {
 
 Status derive(int pixelCount, int rowLength, int numberOfChips,
               int numberOfRows, Geometry& geometry)
 {
-    geometry = Geometry{0, 0, 0, 0, 0};
+    geometry = Geometry{0, 0, 0, 0, 0, 0};
     if (pixelCount <= 0 || rowLength <= 0 || numberOfChips <= 0 ||
         numberOfRows <= 0) {
         return Status::InvalidArgument;
     }
 
-    if (numberOfChips % rowLength != 0 || pixelCount % numberOfChips != 0) {
+    if (numberOfChips % rowLength != 0 || pixelCount % numberOfRows != 0) {
         return Status::PixelCountMismatch;
     }
 
-    const int pixelsPerChip = pixelCount / numberOfChips;
-    const int chipWidth = static_cast<int>(std::sqrt(
-        static_cast<double>(pixelsPerChip)));
-    if (chipWidth <= 0 ||
-        static_cast<std::int64_t>(chipWidth) * chipWidth != pixelsPerChip) {
-        return Status::NonSquareChip;
-    }
     const int xChips = rowLength;
     const int yChips = numberOfChips / xChips;
-    const std::int64_t rows =
-        static_cast<std::int64_t>(yChips) * chipWidth;
-    const std::int64_t cols =
-        static_cast<std::int64_t>(xChips) * chipWidth;
-    if (xChips <= 0 || yChips <= 0 || rows != numberOfRows ||
-        rows * cols != pixelCount ||
-        rows > std::numeric_limits<int>::max() ||
-        cols > std::numeric_limits<int>::max()) {
+    const int rows = numberOfRows;
+    const int cols = pixelCount / rows;
+    if (xChips <= 0 || yChips <= 0 || rows % yChips != 0 ||
+        cols % xChips != 0) {
+        return Status::NonIntegralChipGrid;
+    }
+    const int chipWidth = cols / xChips;
+    const int chipHeight = rows / yChips;
+    if (chipWidth <= 0 || chipHeight <= 0 ||
+        static_cast<std::int64_t>(chipWidth) * chipHeight * numberOfChips != pixelCount ||
+        static_cast<std::int64_t>(rows) * cols != pixelCount) {
         return Status::NonIntegralChipGrid;
     }
 
     geometry = Geometry{static_cast<int>(rows), static_cast<int>(cols),
-                        xChips, yChips, chipWidth};
+                        xChips, yChips, chipWidth, chipHeight};
     return Status::Ok;
 }
 
@@ -70,10 +64,8 @@ const char* statusMessage(Status status)
         return "invalid detector geometry argument";
     case Status::PixelCountMismatch:
         return "detector raster and pixel count disagree";
-    case Status::NonSquareChip:
-        return "per-chip pixel count is not a square";
     case Status::NonIntegralChipGrid:
-        return "detector raster does not form an integral chip grid";
+        return "detector raster does not form an integral rectangular chip grid";
     }
     return "unknown detector geometry error";
 }

@@ -256,6 +256,19 @@ asynStatus ADTimePix::rowsCols(int *rows, int *cols, int *xChips, int *yChips, i
     getIntegerParam(ADTimePixNumberOfChips, &numChips);
     getIntegerParam(ADTimePixNumberOfRows, &numRows);
 
+    if (!ADTimePix3BpcMask::operatorMaskSupported(detectorFamily_)) {
+        *rows = 0;
+        *cols = 0;
+        *xChips = 0;
+        *yChips = 0;
+        *chipPelWidth = 0;
+        const std::string message = std::string(detectorFamilyName(detectorFamily_)) +
+            " mask geometry blocked: pixel encoding and coordinate mapping are not qualified";
+        setStringParam(ADTimePixWriteMsg, message.c_str());
+        WARN_ARGS("rowsCols: %s", message.c_str());
+        return asynError;
+    }
+
     if (numChips == 8) {
         std::string firstChipboardId;
         std::string secondChipboardId;
@@ -532,6 +545,17 @@ asynStatus ADTimePix::checkBPCPath()
  * serverURL + /config/load?format=pixelconfig&file= path + fileName.
  */
 asynStatus ADTimePix::uploadBPC(){
+    if (detectorFamily_ == DetectorFamily::Unknown) {
+        (void)getDetector();
+    }
+    if (!detectorCapabilities_.supportsCalibrationUpload) {
+        const std::string message = std::string(detectorFamilyName(detectorFamily_)) +
+            " BPC upload blocked: calibration format is not qualified";
+        setStringParam(ADTimePixWriteMsg, message.c_str());
+        callParamCallbacks();
+        ERR_ARGS("%s", message.c_str());
+        return asynError;
+    }
     std::vector<std::uint8_t> validatedData;
     if (readBPCfile(validatedData) != asynSuccess) {
         ERR("uploadBPC: local BPC validation failed; request not sent");
