@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Tpx4Status</name>
+  <width>350</width><height>190</height>
+  <background_color><color red="187" green="187" blue="187"/></background_color>
+  <widget type="rectangle" version="2.0.0">
+    <name>Border</name><width>350</width><height>190</height>
+    <line_width>1</line_width><transparent>true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name><text>Timepix4 Experimental Status</text>
+    <x>45</x><y>5</y><width>260</width><height>20</height>
+    <font><font family="Sans" style="REGULAR" size="11.0"/></font>
+    <foreground_color><color red="10" green="0" blue="184"/></foreground_color>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ChipTypeLabel</name><text>Chip type</text>
+    <x>20</x><y>35</y><width>100</width><height>20</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ChipType</name><pv_name>$(P)$(R)ChipType_RBV</pv_name>
+    <x>130</x><y>35</y><width>180</width><height>20</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>GeometryLabel</name><text>Pixels / rows</text>
+    <x>20</x><y>60</y><width>100</width><height>20</height>
+    <horizontal_alignment>2</horizontal_alignment>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PixelCount</name><pv_name>$(P)$(R)PixCount_RBV</pv_name>
+    <x>130</x><y>60</y><width>85</width><height>20</height>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Rows</name><pv_name>$(P)$(R)NRows_RBV</pv_name>
+    <x>225</x><y>60</y><width>85</width><height>20</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Boundary</name>
+    <text>One preview destination is configured for acquisition bring-up. PixelConfig, mask, BPC/DACS, full-rate image, raw and histogram paths remain disabled.</text>
+    <x>15</x><y>88</y><width>320</width><height>50</height>
+    <wrap_words>true</wrap_words>
+    <foreground_color><color red="150" green="60" blue="0"/></foreground_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>PreviewDestinationBtn</name>
+    <actions>
+      <action type="open_display">
+        <description>Timepix4 preview destination</description>
+        <file>Acquire/Tpx4ServerFileWriter.bob</file>
+        <target>tab</target>
+      </action>
+    </actions>
+    <text>Preview Destination</text>
+    <x>175</x><y>153</y><width>160</width><height>25</height>
+    <background_color><color red="115" green="223" blue="255"/></background_color>
+  </widget>
+</display>

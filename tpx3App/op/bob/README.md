@@ -6,7 +6,8 @@ Operator displays for **ADServal** (Display Builder `.bob` / legacy `.opi` fragm
 
 ```
 bob/
-  TimePix3.bob, MediPix3.bob       # thin launchers (macros P, R, pathADCore)
+  TimePix3.bob, MediPix3.bob       # established thin launchers
+  TimePix4.bob                     # experimental single-chip thin launcher
   MediPix3/MediPix3.bob            # legacy bookmark shim → profiles/mpx3/main.bob
   common/                          # shared panels ($(P)$(R) macros)
     ADSetup.bob, ConnectionStatus.bob
@@ -14,7 +15,7 @@ bob/
   profiles/
     tpx3/                          # main.bob, TimePix3Detector, status toolbar, TPX3 acquire
     mpx3/                          # main.bob, Mpx3Status, Mpx3* acquire/detector panels
-    tpx4/                          # placeholder README
+    tpx4/                          # minimal capability-limited TPX4 profile
   Emulator/                        # shell + tpx3/mpx3 embeds (inherited detector P)
   Serval/                          # shared Serval panel (inherited detector P)
 ```
@@ -26,6 +27,7 @@ bob/
 | `TimePix3.bob` | `P=TPX3-TEST:`, `R=cam1:` | `profiles/tpx3/main.bob` |
 | `MediPix3.bob` | `P=MPX3-TEST:`, `R=cam1:` | `profiles/mpx3/main.bob` |
 | `MediPix3/MediPix3.bob` | `P=MPX3-TEST:`, `R=cam1:` | same (legacy path) |
+| `TimePix4.bob` | `P=TPX4-TEST:`, `R=cam1:` | `profiles/tpx4/main.bob` |
 | `Emulator/emulator.bob` | `P=TPX3-TEST:`, `R=Emulator:` | shared TPX3/MPX3 emulator shell |
 | `Serval/tpx3serval.bob` | `P=TPX3-TEST:`, `R=Serval:` | shared Serval process IOC |
 
@@ -44,10 +46,10 @@ The emulator shell and TPX3 embed use the TPX3 fallback when opened directly; th
 
 ## Family-specific vs shared
 
-| `common/` | `profiles/tpx3/` | `profiles/mpx3/` |
-|-----------|------------------|------------------|
-| ADSetup, ConnectionStatus, ADCollect, Mask, chip health | PrvHstHistogram, PrvImgMonitor, DetectorConfig, stream BOBs | Mpx3Preview/Image/HDF panels, Mpx3DetectorConfig |
-| ServerFileWriter, WriteFiles, ImgAccumulation | TimePix3Status toolbar (incl. Emulator/Serval), TimePix3Detector, TimePix3Alarm/API | Mpx3Status toolbar, Mpx3Alarm |
+| `common/` | `profiles/tpx3/` | `profiles/mpx3/` | `profiles/tpx4/` |
+|-----------|------------------|------------------|------------------|
+| ADSetup, ConnectionStatus, ADCollect, Mask, chip health | PrvHstHistogram, PrvImgMonitor, DetectorConfig, stream BOBs | Mpx3Preview/Image/HDF panels, Mpx3DetectorConfig | Preview-only destination panel |
+| ServerFileWriter, WriteFiles, ImgAccumulation | TimePix3Status toolbar (incl. Emulator/Serval), TimePix3Detector, TimePix3Alarm/API | Mpx3Status toolbar, Mpx3Alarm | TPX4 status/qualification boundary |
 
 Legacy CS-Studio **`.opi`**: **`tpx3App/op/opi/`** (not updated in R1-7-2).
 
@@ -59,10 +61,11 @@ Run `python3 test/validate_bob_prefix_macros.py` from the repository root to ver
 
 Beamline-specific display forks: gitignored `*_site.bob` or local Phoebus paths — do not fork whole profiles in git.
 
-## Adding TPX4
+## Experimental TPX4 boundary
 
-```bash
-cp -r profiles/tpx3 profiles/tpx4
-# Edit profiles/tpx4/main.bob, unique acquire panels
-# Add bob/Tpx4.bob launcher at root
-```
+`TimePix4.bob` embeds a minimal family profile containing generic AD controls,
+connection state, health, detector information, and an explicit qualification
+notice. It provides a restricted single-preview destination screen, but no
+mask, BPC/DACS, full-rate image, secondary preview, raw-event, histogram, MPX3
+threshold, or emulator-control buttons. Add those controls only after their
+TPX4 contracts have captured test evidence; do not copy the TPX3 profile tree.

@@ -8,6 +8,7 @@ One IOC app (`iocTimePix`) shares driver code; each **profile** is a self-contai
 iocBoot/iocTimePix/
   st.cmd                 → profiles/tpx3/st.cmd
   st_mpx3.cmd            → profiles/mpx3/st.cmd
+  st_tpx4.cmd            → profiles/tpx4/st.cmd (experimental single chip)
   envPaths, load_chips.cmd
   common/
     st_core.cmd          # driver + cam1 DB + Image1 (all families)
@@ -17,7 +18,7 @@ iocBoot/iocTimePix/
   profiles/
     tpx3/                # Timepix3
     mpx3/                # Medipix3
-    tpx4/                # (future) copy tpx3 skeleton + edit deltas
+    tpx4/                # experimental 448×512 single-chip readback profile
   autosave/
     tpx3/  mpx3/  tpx4/
 ```
@@ -48,15 +49,18 @@ Each `profiles/<family>/st.cmd` follows the same sequence:
 
 MPX3 optional: `init/img.cmd`, `init/hdf5_img.cmd`, `init/hdf5_img_arm.cmd`, `init/hw_equalize.cmd`.
 
-## Adding TPX4
+## Experimental TPX4 profile
 
-```bash
-cp -r profiles/tpx3 profiles/tpx4
-# Edit profiles/tpx4/unique.cmd (PORT, PREFIX, mosaic)
-# Add profiles/tpx4/plugins_tpx4.cmd if needed
-# Add st_tpx4.cmd launcher at boot root
-mkdir -p autosave/tpx4
-```
+`st_tpx4.cmd` starts a deliberately conservative single-chip profile for the
+captured Serval 4.1.6 experimental geometry (`448×512`, one chip). It loads the
+shared IOC core, performs detector discovery, and configures one
+`Preview.ImageChannels[0]` jsonimage stream on TCP port 8089. `Pva1` callbacks
+are enabled for `pva://TPX4-TEST:Pva1:Image`.
+
+It does not restore detector setpoints, upload BPC/DACS, refresh PixelConfig,
+or configure full-rate image, secondary preview, raw or histogram channels.
+Those paths remain fail-closed until their TPX4 contracts are qualified. Do
+not construct another TPX4 profile by copying the TPX3 tree wholesale.
 
 ## Site overlays
 

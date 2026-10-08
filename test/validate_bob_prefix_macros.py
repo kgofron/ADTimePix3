@@ -21,6 +21,7 @@ ENTRY_SCREENS = {
     BOB_ROOT / "TimePix3.bob": ("TPX3-TEST:", "profiles/tpx3/main.bob"),
     BOB_ROOT / "MediPix3.bob": ("MPX3-TEST:", "profiles/mpx3/main.bob"),
     BOB_ROOT / "MediPix3/MediPix3.bob": ("MPX3-TEST:", "../profiles/mpx3/main.bob"),
+    BOB_ROOT / "TimePix4.bob": ("TPX4-TEST:", "profiles/tpx4/main.bob"),
 }
 
 LAUNCHERS = {

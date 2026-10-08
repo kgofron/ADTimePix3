@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>TimePix4</name>
+  <macros>
+    <pathADCore>ADet/R3-14/ADCore/R3-14</pathADCore>
+    <pathADet>/home/controls/common/bob/main</pathADet>
+  </macros>
+  <width>1070</width>
+  <height>940</height>
+  <widget type="embedded" version="2.0.0">
+    <name>TimePix4Profile</name>
+    <macros>
+      <P>$(P=TPX4-TEST:)</P>
+      <R>$(R=cam1:)</R>
+      <pathADCore>$(pathADCore)</pathADCore>
+      <pathADet>$(pathADet)</pathADet>
+    </macros>
+    <file>profiles/tpx4/main.bob</file>
+    <width>1070</width>
+    <height>940</height>
+    <resize>4</resize>
+    <transparent>true</transparent>
+  </widget>
+</display>
