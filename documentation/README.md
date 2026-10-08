@@ -1,6 +1,6 @@
 # ADServal documentation index
 
-Technical notes for the unified **ADServal** areaDetector module (shipped as **ADTimePix3**): **TimePix3** and **Medipix3** on Serval; **TimePix4** planned. Naming: [NAMING.md](NAMING.md). Sphinx release docs and screenshots: [`docs/ADTimePix3/`](../docs/ADTimePix3/).
+Technical notes for the unified **ADServal** areaDetector module (shipped as **ADTimePix3**): established **TimePix3** and **Medipix3** support plus experimental single-chip **Timepix4** integration. Naming: [NAMING.md](NAMING.md). Sphinx release docs and screenshots: [`docs/ADTimePix3/`](../docs/ADTimePix3/).
 
 ## Medipix3
 
@@ -11,7 +11,14 @@ Merged in **R1-7-0** (August 2026). See **[medipix3/](medipix3/)** and [NAMING.m
 | [medipix3/integration.md](medipix3/integration.md) | MPX3 IOC profile, emulator, calibration, preview |
 | [medipix3/preview-dual-threshold.md](medipix3/preview-dual-threshold.md) | Dual-threshold preview (vendor notes, plan) |
 
-## Shared (both detector families)
+## Timepix4 (experimental)
+
+| Document | Description |
+|----------|-------------|
+| [timepix4/README.md](timepix4/README.md) | Captured single-chip contract and qualification boundary |
+| [timepix4/integration.md](timepix4/integration.md) | Conservative IOC/Phoebus profile and evidence workflow |
+
+## Shared driver documentation
 
 | Document | Description |
 |----------|-------------|

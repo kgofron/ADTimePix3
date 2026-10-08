@@ -195,18 +195,42 @@ Unknown orientation strings continue to fail closed.
 
 ### Adding TPX4 or another family
 
-Future geometry unification must not assume a square ASIC matrix. The Timepix4
+Geometry unification must not assume a square ASIC matrix. The Timepix4
 readout ASIC has square 55×55 µm pixels arranged as a non-square 448×512 pixel
 matrix. A generic model therefore needs independent chip width and height,
 assembled-image width and height, and orientation transforms that swap the
 occupied chip dimensions for 90-degree rotations. `RowLen` should be validated
 against captured metadata rather than used as the sole source of raster width.
-Perform that unification only after representative Timepix4 Serval `Info` and
-`Layout` captures are available; do not extend the current square-chip
-`sqrt(PixCount / NumberOfChips)` assumption to Timepix4.
+The first Serval 4.1.6 experimental capture is now available: one TPX4 chip,
+`PixCount=229376`, `RowLen=1`, `NumberOfRows=512`, and an original/rotated
+448×512 `UP` layout with chip 0 at `(0,0)` using `LtRBtT`. The generic detector
+geometry helper consequently derives independent chip width and height instead
+of using `sqrt(PixCount / NumberOfChips)`.
 
-Add the new family here only after recording all of the following from Serval
-and validating them against an acquisition:
+Capture the API contract from the same running Serval instance used for the
+layout evidence. Serval 4.1.6 serves both formats directly; `openapi.yaml` is a
+native endpoint, not a conversion of the JSON file:
+
+```bash
+SERVAL_URL=http://localhost:8081
+CAPTURE_DIR=.codex/tpx4
+mkdir -p "${CAPTURE_DIR}"
+
+wget --quiet --timeout=20 --tries=2 \
+  --output-document="${CAPTURE_DIR}/openapi.json" \
+  "${SERVAL_URL}/openapi.json"
+wget --quiet --timeout=20 --tries=2 \
+  --output-document="${CAPTURE_DIR}/openapi.yaml" \
+  "${SERVAL_URL}/openapi.yaml"
+```
+
+The interactive Swagger UI is at `${SERVAL_URL}/docs/`. Its **Servers**
+dropdown may show port 8080 even when the running instance uses another port;
+use the port from the browser URL or Serval startup command. Keep full OpenAPI
+snapshots as local evidence rather than committing the generated documents.
+Record the Serval version/build and file checksums with any derived test cases.
+
+Complete TPX4 coordinate-dependent support only after recording and validating:
 
 1. Mosaic width and height and each chip's explicit `Chip`, `X`, `Y`, and
    `Orientation` values.
@@ -218,9 +242,9 @@ and validating them against an acquisition:
 4. Behavior for every supported global `DetectorOrientation`, including
    whether `Layout.Rotated` changes accordingly.
 
-Until those items exist, TPX4 layout is **not specified**. New family support
-should consume Serval layout metadata where available and fail closed for an
-unknown orientation rather than borrowing TPX3 or MPX3 assumptions.
+The rectangular detector raster is specified, but TPX4 PixelConfig/BPC-local
+mapping is **not specified**. TPX4 mask, comparison and export operations
+therefore fail closed rather than borrowing TPX3 or MPX3 assumptions.
 
 ## Single-chip (`numChips == 1`)
 

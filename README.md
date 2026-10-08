@@ -1,6 +1,6 @@
 # ADServal (ADTimePix3)
 
-**ADServal** is the unified EPICS areaDetector driver for ASI pixel detectors on **Serval** — **TimePix3**, **Medipix3** ([R1-7-0](RELEASE.md)); **TimePix4** planned. It is shipped from this repository under the legacy module name **ADTimePix3** (`$(ADTIMEPIX)`, `libADTimePix`). See [documentation/NAMING.md](documentation/NAMING.md) for naming and migration.
+**ADServal** is the unified EPICS areaDetector driver for ASI pixel detectors on **Serval** — established **TimePix3** and **Medipix3** support ([R1-7-0](RELEASE.md)) plus experimental single-chip **Timepix4** integration. It is shipped from this repository under the legacy module name **ADTimePix3** (`$(ADTIMEPIX)`, `libADTimePix`). See [documentation/NAMING.md](documentation/NAMING.md) for naming and migration.
 
 The driver provides detector configuration and control via Serval and on-IOC data processing over HTTP/JSON REST and high-rate TCP streams (raw events, images, histograms). It supports real-time preview and **image accumulation** (running sum, sum of last N frames), **Time-of-Flight (ToF) histogram** processing and accumulation, pixel masking (Binary Pixel Configuration files, rectangular/circular masks, hot-pixel tools), health and status monitoring, and integration with standard areaDetector plugins for file saving and analysis. Established support includes single-chip and 2×2 quad detectors. The **eight-chip / dual-SPIDR** 4×2 path described in [documentation/8chip-migration.md](documentation/8chip-migration.md) is software- and emulator-qualified with the release-specific limits below. The driver is developed for Linux 64-bit (tested on Ubuntu and RHEL). Published in [DOE CODE](https://www.osti.gov/doecode/biblio/176778).
 
@@ -15,6 +15,7 @@ Additional information:
 * **PixelConfig vs on-disk BPC** (SERVAL live config vs `.bpc` file, `PixelConfigDiff` / mask layout): [documentation/PIXELCONFIG_BPC_DIFF.md](documentation/PIXELCONFIG_BPC_DIFF.md)
 * **Readout stack diagram** (48→64→SERVAL; **ADServal** / ADTimePix3 is a SERVAL-only client; **LUNA** is an optional parallel ASI path not used by this driver): [PNG](documentation/TimePix3_pipeline_48_64_96_caption.png), [SVG source](documentation/TimePix3_pipeline_48_64_96.svg) (regenerate PNG with Inkscape from the SVG if you edit the figure).
 * **Medipix3 (R1-7-0)**: unified **ADServal** driver with runtime `DetectorFamily` detection, capability PVs, and IOC profile `st_mpx3.cmd` — validated on emulator and first ASI hardware preview (July 2026); equalization / IXS band-pass on hardware still to follow — [documentation/medipix3/integration.md](documentation/medipix3/integration.md) ([index](documentation/medipix3/README.md)).
+* **Timepix4 (experimental)**: explicit TPX4 family detection, rectangular 448×512 single-chip geometry, and conservative IOC/Phoebus profiles. PixelConfig, masks, calibration, raw/histogram streams, additional orientations, and physical hardware are not yet qualified — [documentation/timepix4/](documentation/timepix4/README.md).
 
 Notes:
 ------
@@ -242,7 +243,7 @@ EPICS ADServal driver analysis (legacy module ADTimePix3)
 
 ### Overview
 
-**ADServal** (EPICS module **ADTimePix3**, class `ADTimePix`) is the unified areaDetector driver for ASI pixel detectors on Serval — TimePix3, Medipix3 (R1-7-0+), TimePix4 planned. It provides a complete interface between EPICS and Serval (HTTP/JSON configuration, TCP data streams).
+**ADServal** (EPICS module **ADTimePix3**, class `ADTimePix`) is the unified areaDetector driver for ASI pixel detectors on Serval — TimePix3, Medipix3 (R1-7-0+), and experimental single-chip Timepix4 integration. It provides the shared interface between EPICS and Serval (HTTP/JSON configuration, TCP data streams).
 
 ### Key Components
 

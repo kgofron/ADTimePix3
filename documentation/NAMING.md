@@ -4,7 +4,7 @@
 
 | Name | Meaning | Status |
 |------|---------|--------|
-| **ADServal** | Unified EPICS areaDetector driver for ASI pixel detectors on **Serval** (TimePix3, Medipix3; TimePix4 planned) | **Preferred** in release notes and new documentation |
+| **ADServal** | Unified EPICS areaDetector driver for ASI pixel detectors on **Serval** (TimePix3, Medipix3; experimental single-chip Timepix4 integration) | **Preferred** in release notes and new documentation |
 | **ADTimePix3** | GitHub repository, EPICS support module directory, `$(ADTIMEPIX)` install path, library `libADTimePix`, C++ class `ADTimePix`, version macros `ADTIMEPIX_*` | **Legacy**; unchanged in builds and IOCs until a planned rename |
 
 **R1-7-0** merged Medipix3 into the same driver binary. Documentation now describes that work under **ADServal**; operators still install and build **`ADTimePix3`** as today.

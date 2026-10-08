@@ -10,7 +10,7 @@ vendor/
     1x1/          # 1 chip, 256×256 (65536 px) — eq.bpc, eq.dacs
     2x2/          # 4 chips, 512×512 (262144 px) — tpx3-demo.bpc, tpx3-demo.dacs (default TPX3 profile)
   mpx3/           # Medipix3 quad — eq-01.bpc, eq-01.dacs
-  tpx4/           # (future) Timepix4 calibration
+  tpx4/           # TPX4 calibration boundary; no qualified files yet
 ```
 
 Mirror **`profiles/<family>/`** and **`MASK_BPC_NELEMENTS`** in `profiles/<family>/unique.cmd`.
