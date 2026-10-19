@@ -58,8 +58,10 @@ shared IOC core, performs detector discovery, and configures one
 are enabled for `pva://TPX4-TEST:Pva1:Image`.
 
 It does not restore detector setpoints, upload BPC/DACS, refresh PixelConfig,
-or configure full-rate image, secondary preview, raw or histogram channels.
-Those paths remain fail-closed until their TPX4 contracts are qualified. Do
+or enable full-rate Image[0], secondary preview, raw or histogram channels at
+startup. Image[0] can be enabled manually for acquisition validation with
+Serval 4.1.6; the IOC image TCP worker is enabled by default. Other destination
+channels remain fail-closed until their TPX4 contracts are qualified. Do
 not construct another TPX4 profile by copying the TPX3 tree wholesale.
 
 ## Site overlays

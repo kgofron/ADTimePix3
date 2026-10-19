@@ -15,7 +15,7 @@ iocInit()
 
 # Conservative initialization: detector discovery plus one preview destination.
 # No detector setpoint, PixelConfig, BPC, DACS, full-rate image, secondary
-# preview, raw or histogram push occurs.
+# preview, raw or histogram push occurs. Image[0] is available manually.
 < profiles/tpx4/init/detector.cmd
 
 set_requestfile_path("profiles/tpx4")

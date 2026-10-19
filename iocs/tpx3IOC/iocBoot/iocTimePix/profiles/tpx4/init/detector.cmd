@@ -2,7 +2,7 @@
 # Refresh detector readbacks first, then push only the qualified single
 # preview destination. Detector setpoint writes, BPC/DACS uploads, PixelConfig,
 # full-rate image, secondary preview, raw and histogram streams remain outside
-# startup.
+# startup. Image[0] may be enabled manually for experimental validation.
 
 < profiles/tpx4/init/paths.cmd
 dbpf("$(PREFIX)cam1:RefreshConnection", "1")

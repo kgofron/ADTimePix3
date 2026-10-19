@@ -2373,6 +2373,47 @@ asynStatus ADTimePix::sendMeasurementConfig() {
  */
 asynStatus ADTimePix::fileWriter(){
     FLOW("Configuring file writer channels");
+
+    /* TPX4 currently permits preview image 0 and experimental full image 0.
+     * Reject stale or manually enabled TPX3-only channel flags before a
+     * destination PUT, including during acquisition startup. */
+    if (detectorFamily_ == DetectorFamily::TPX4) {
+        struct ChannelFlag { int parameter; const char* name; };
+        const ChannelFlag unsupported[] = {
+            {ADTimePixWriteRaw, "Raw[0]"},
+            {ADTimePixWriteRaw1, "Raw[1]"},
+            {ADTimePixWriteImg1, "Image[1]"},
+            {ADTimePixWritePrvImg1, "Preview.ImageChannels[1]"},
+            {ADTimePixWritePrvHst, "Preview.HistogramChannels[0]"},
+        };
+        for (const auto& channel : unsupported) {
+            int enabled = 0;
+            if (getParameterSafely(channel.parameter, enabled) != asynSuccess) {
+                return asynError;
+            }
+            if (enabled != 0) {
+                const std::string message = std::string("TPX4 destination blocked: ") +
+                    channel.name + " is not qualified";
+                setStringParam(ADTimePixWriteMsg, message.c_str());
+                callParamCallbacks();
+                ERR_ARGS("%s", message.c_str());
+                return asynError;
+            }
+        }
+        int previewEnabled = 0;
+        int imageEnabled = 0;
+        if (getParameterSafely(ADTimePixWritePrvImg, previewEnabled) != asynSuccess ||
+            getParameterSafely(ADTimePixWriteImg, imageEnabled) != asynSuccess) {
+            return asynError;
+        }
+        if (previewEnabled == 0 && imageEnabled == 0) {
+            const char* message = "TPX4 destination blocked: enable preview or image channel 0";
+            setStringParam(ADTimePixWriteMsg, message);
+            callParamCallbacks();
+            ERR_ARGS("%s", message);
+            return asynError;
+        }
+    }
     
     // Build configuration JSON
     json server_j;
