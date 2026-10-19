@@ -38,21 +38,21 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Boundary</name>
-    <text>One preview destination is configured for acquisition bring-up. PixelConfig, mask, BPC/DACS, full-rate image, raw and histogram paths remain disabled.</text>
+    <text>Preview is configured at startup. Image 0 is experimental and starts off. Raw and histogram remain blocked.</text>
     <x>15</x><y>88</y><width>320</width><height>50</height>
     <wrap_words>true</wrap_words>
     <foreground_color><color red="150" green="60" blue="0"/></foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
-    <name>PreviewDestinationBtn</name>
+    <name>DestinationsBtn</name>
     <actions>
       <action type="open_display">
-        <description>Timepix4 preview destination</description>
+        <description>Timepix4 destinations</description>
         <file>Acquire/Tpx4ServerFileWriter.bob</file>
         <target>tab</target>
       </action>
     </actions>
-    <text>Preview Destination</text>
+    <text>Destinations</text>
     <x>175</x><y>153</y><width>160</width><height>25</height>
     <background_color><color red="115" green="223" blue="255"/></background_color>
   </widget>

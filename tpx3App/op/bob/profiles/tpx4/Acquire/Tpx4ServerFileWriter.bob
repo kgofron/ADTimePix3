@@ -1,136 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Tpx4ServerFileWriter</name>
-  <width>850</width>
-  <height>430</height>
-  <background_color><color red="187" green="187" blue="187"/></background_color>
-  <grid_step_x>5</grid_step_x>
-  <grid_step_y>5</grid_step_y>
+  <width>980</width><height>1005</height>
+  <background_color><color red="242" green="245" blue="249"/></background_color>
+  <grid_step_x>5</grid_step_x><grid_step_y>5</grid_step_y>
 
-  <widget type="label" version="2.0.0">
-    <name>Title</name>
-    <text>Timepix4 Preview Destination — $(P)$(R)</text>
-    <x>5</x><y>5</y><width>840</width><height>25</height>
-    <font><font family="Sans" style="BOLD" size="14.0"/></font>
-    <foreground_color><color red="10" green="0" blue="184"/></foreground_color>
-    <background_color><color red="220" green="235" blue="255"/></background_color>
-    <transparent>false</transparent><horizontal_alignment>1</horizontal_alignment>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name><width>980</width><height>64</height><line_width>0</line_width>
+    <background_color><color red="31" green="50" blue="73"/></background_color><transparent>false</transparent>
   </widget>
-
   <widget type="label" version="2.0.0">
-    <name>Boundary</name>
-    <text>Experimental TPX4 scope: Preview.ImageChannels[0] only. Raw, histogram, Image[], Preview[1], thresholds and calibration are not enabled.</text>
-    <x>15</x><y>38</y><width>820</width><height>35</height>
-    <wrap_words>true</wrap_words>
-    <foreground_color><color red="150" green="60" blue="0"/></foreground_color>
+    <name>Title</name><text>Timepix4  /  Destinations</text>
+    <x>20</x><y>8</y><width>600</width><height>27</height>
+    <font><font family="Sans" style="BOLD" size="17.0"/></font>
+    <foreground_color><color red="255" green="255" blue="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name><text>$(P)$(R)  •  Preview 0 and experimental Image 0</text>
+    <x>21</x><y>36</y><width>740</width><height>19</height>
+    <foreground_color><color red="210" green="225" blue="241"/></foreground_color>
   </widget>
 
-  <widget type="label" version="2.0.0">
-    <name>FamilyLabel</name><text>Family</text>
-    <x>15</x><y>82</y><width>85</width><height>22</height><horizontal_alignment>2</horizontal_alignment>
-  </widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Family</name><pv_name>$(P)$(R)DetectorFamily_RBV</pv_name>
-    <x>105</x><y>82</y><width>100</width><height>22</height><format>6</format>
+  <widget type="rectangle" version="2.0.0">
+    <name>SummaryCard</name><x>18</x><y>76</y><width>944</width><height>76</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>WritePreviewLabel</name><text>Preview enabled</text>
-    <x>225</x><y>82</y><width>105</width><height>22</height><horizontal_alignment>2</horizontal_alignment>
+    <name>PreviewEnableLabel</name><text>Preview channel</text>
+    <x>34</x><y>91</y><width>125</width><height>22</height>
+    <font><font family="Sans" style="BOLD" size="11.0"/></font>
   </widget>
-  <widget type="bool_button" version="2.0.0">
-    <name>WritePreview</name><pv_name>$(P)$(R)WritePrvImg</pv_name><bit>-1</bit>
-    <x>335</x><y>80</y><width>75</width><height>24</height>
-    <off_color><color red="120" green="120" blue="120"/></off_color>
-    <on_color><color red="0" green="220" blue="0"/></on_color>
-    <tooltip>Enable Preview.ImageChannels[0] in the next destination push</tooltip>
+  <widget type="action_button" version="3.0.0">
+    <name>EnablePreview</name>
+    <actions><action type="write_pv"><description>Enable TPX4 preview channel</description><pv_name>$(P)$(R)WritePrvImg</pv_name><value>1</value></action></actions>
+    <text>Enable</text>
+    <x>160</x><y>89</y><width>84</width><height>26</height>
+    <background_color><color red="224" green="243" blue="252"/></background_color>
+    <tooltip>Include Preview.ImageChannels[0] in the next destination push</tooltip>
   </widget>
   <widget type="led" version="2.0.0">
     <name>WritePreviewRBV</name><pv_name>$(P)$(R)WritePrvImg_RBV</pv_name>
-    <x>418</x><y>82</y><width>20</width><height>20</height>
-    <off_color><color red="150" green="150" blue="150"/></off_color>
-    <on_color><color red="0" green="220" blue="0"/></on_color>
-    <tooltip>Serval destination readback</tooltip>
+    <x>253</x><y>92</y><width>20</width><height>20</height>
+    <off_color><color red="153" green="163" blue="175"/></off_color>
+    <on_color><color red="47" green="177" blue="118"/></on_color>
+    <tooltip>Preview channel enabled in Serval destination readback</tooltip>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>PvaLabel</name><text>PVA callbacks</text>
-    <x>465</x><y>82</y><width>95</width><height>22</height><horizontal_alignment>2</horizontal_alignment>
-  </widget>
-  <widget type="bool_button" version="2.0.0">
-    <name>PvaEnable</name><pv_name>$(P)Pva1:EnableCallbacks</pv_name><bit>-1</bit>
-    <x>565</x><y>80</y><width>75</width><height>24</height>
-    <off_color><color red="120" green="120" blue="120"/></off_color>
-    <on_color><color red="0" green="220" blue="0"/></on_color>
-    <tooltip>Publish decoded preview NDArrays as pva://$(P)Pva1:Image</tooltip>
-  </widget>
+  <widget type="label" version="2.0.0"><name>AppliedLabel</name><text>Applied</text><x>280</x><y>92</y><width>55</width><height>20</height></widget>
+  <widget type="label" version="2.0.0"><name>FamilyLabel</name><text>Detector</text><x>350</x><y>92</y><width>65</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>Family</name><pv_name>$(P)$(R)DetectorFamily_RBV</pv_name><x>417</x><y>91</y><width>68</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>HttpLabel</name><text>HTTP</text><x>505</x><y>92</y><width>44</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>HttpCode</name><pv_name>$(P)$(R)HttpCode_RBV</pv_name><x>550</x><y>91</y><width>58</width><height>22</height></widget>
   <widget type="action_button" version="3.0.0">
     <name>PushDestination</name>
-    <actions><action type="write_pv"><description>Push TPX4 preview destination</description><pv_name>$(P)$(R)WriteData</pv_name><value>1</value></action></actions>
-    <text>Apply Destination</text>
-    <x>665</x><y>78</y><width>165</width><height>28</height>
-    <background_color><color red="115" green="223" blue="255"/></background_color>
-    <tooltip>PUT the enabled destination channels to Serval and refresh readbacks</tooltip>
+    <actions><action type="write_pv"><description>Apply TPX4 destinations</description><pv_name>$(P)$(R)WriteData</pv_name><value>1</value></action></actions>
+    <text>Apply destination</text><x>770</x><y>88</y><width>174</width><height>29</height>
+    <background_color><color red="115" green="205" blue="238"/></background_color>
+    <tooltip>Push the enabled Preview 0 and Image 0 channels to Serval, then refresh readbacks</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ApplyHint</name><text>Changes take effect when you apply the destination.</text>
+    <x>34</x><y>121</y><width>610</width><height>20</height>
+    <foreground_color><color red="92" green="105" blue="121"/></foreground_color>
   </widget>
 
-  <widget type="group" version="3.0.0">
-    <name>PreviewChannel</name><x>10</x><y>115</y><width>830</width><height>220</height>
-    <widget type="label" version="2.0.0">
-      <name>GroupTitle</name><text>Preview.ImageChannels[0]</text>
-      <x>5</x><y>2</y><width>210</width><height>20</height>
-      <font><font family="Sans" style="BOLD" size="11.0"/></font>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>PathLabel</name><text>Base (set)</text><x>10</x><y>32</y><width>90</width><height>22</height><horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textentry" version="3.0.0">
-      <name>Path</name><pv_name>$(P)$(R)PrvImgFilePath</pv_name>
-      <x>105</x><y>30</y><width>700</width><height>22</height>
-      <background_color><color red="115" green="223" blue="255"/></background_color><format>6</format>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>PathRBVLabel</name><text>Base (RBV)</text><x>10</x><y>60</y><width>90</width><height>22</height><horizontal_alignment>2</horizontal_alignment>
-    </widget>
-    <widget type="textupdate" version="2.0.0">
-      <name>PathRBV</name><pv_name>$(P)$(R)PrvImgFilePath_RBV</pv_name>
-      <x>105</x><y>58</y><width>700</width><height>22</height><format>6</format>
-    </widget>
-
-    <widget type="label" version="2.0.0"><name>FormatLabel</name><text>Format</text><x>10</x><y>92</y><width>70</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="combo" version="2.0.0"><name>Format</name><pv_name>$(P)$(R)PrvImgFileFmt</pv_name><x>85</x><y>90</y><width>120</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>FormatRBV</name><pv_name>$(P)$(R)PrvImgFileFmt_RBV</pv_name><x>210</x><y>90</y><width>90</width><height>22</height><format>6</format></widget>
-    <widget type="label" version="2.0.0"><name>ModeLabel</name><text>Mode</text><x>315</x><y>92</y><width>55</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="combo" version="2.0.0"><name>Mode</name><pv_name>$(P)$(R)PrvImgFileMode</pv_name><x>375</x><y>90</y><width>120</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>ModeRBV</name><pv_name>$(P)$(R)PrvImgFileMode_RBV</pv_name><x>500</x><y>90</y><width>90</width><height>22</height><format>6</format></widget>
-    <widget type="label" version="2.0.0"><name>QueueLabel</name><text>Queue</text><x>605</x><y>92</y><width>55</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="textentry" version="3.0.0"><name>Queue</name><pv_name>$(P)$(R)PrvImgQueueSize</pv_name><x>665</x><y>90</y><width>65</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>QueueRBV</name><pv_name>$(P)$(R)PrvImgQueueSize_RBV</pv_name><x>735</x><y>90</y><width>70</width><height>22</height></widget>
-
-    <widget type="label" version="2.0.0"><name>PeriodLabel</name><text>Period (s)</text><x>10</x><y>126</y><width>70</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="textentry" version="3.0.0"><name>Period</name><pv_name>$(P)$(R)PrvPeriod</pv_name><x>85</x><y>124</y><width>90</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color><precision>6</precision></widget>
-    <widget type="textupdate" version="2.0.0"><name>PeriodRBV</name><pv_name>$(P)$(R)PrvPeriod_RBV</pv_name><x>180</x><y>124</y><width>90</width><height>22</height><precision>6</precision></widget>
-    <widget type="label" version="2.0.0"><name>SamplingLabel</name><text>Sampling</text><x>285</x><y>126</y><width>65</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="combo" version="2.0.0"><name>Sampling</name><pv_name>$(P)$(R)PrvSmplgMode</pv_name><x>355</x><y>124</y><width>130</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>SamplingRBV</name><pv_name>$(P)$(R)PrvSmplgMode_RBV</pv_name><x>490</x><y>124</y><width>110</width><height>22</height><format>6</format></widget>
-
-    <widget type="label" version="2.0.0"><name>IntSizeLabel</name><text>Integration</text><x>10</x><y>160</y><width>70</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="textentry" version="3.0.0"><name>IntSize</name><pv_name>$(P)$(R)PrvImgIntgSize</pv_name><x>85</x><y>158</y><width>65</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>IntSizeRBV</name><pv_name>$(P)$(R)PrvImgIntgSize_RBV</pv_name><x>155</x><y>158</y><width>65</width><height>22</height></widget>
-    <widget type="label" version="2.0.0"><name>IntModeLabel</name><text>Mode</text><x>235</x><y>160</y><width>50</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="combo" version="2.0.0"><name>IntMode</name><pv_name>$(P)$(R)PrvImgIntgMode</pv_name><x>290</x><y>158</y><width>110</width><height>22</height><background_color><color red="115" green="223" blue="255"/></background_color></widget>
-    <widget type="textupdate" version="2.0.0"><name>IntModeRBV</name><pv_name>$(P)$(R)PrvImgIntgMode_RBV</pv_name><x>405</x><y>158</y><width>100</width><height>22</height><format>6</format></widget>
-    <widget type="label" version="2.0.0"><name>PathExistsLabel</name><text>Path valid</text><x>530</x><y>160</y><width>70</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-    <widget type="led" version="2.0.0"><name>PathExists</name><pv_name>$(P)$(R)PrvImgFilePathExists_RBV</pv_name><x>605</x><y>158</y><width>20</width><height>20</height><off_color><color red="220" green="0" blue="0"/></off_color><on_color><color red="0" green="220" blue="0"/></on_color></widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>PreviewCard</name><x>18</x><y>165</y><width>626</width><height>355</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
   </widget>
-
-  <widget type="label" version="2.0.0"><name>HttpLabel</name><text>HTTP</text><x>20</x><y>350</y><width>55</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-  <widget type="textupdate" version="2.0.0"><name>HttpCode</name><pv_name>$(P)$(R)HttpCode_RBV</pv_name><x>80</x><y>348</y><width>65</width><height>22</height></widget>
-  <widget type="label" version="2.0.0"><name>PolicyLabel</name><text>Policy</text><x>165</x><y>350</y><width>55</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-  <widget type="textupdate" version="2.0.0"><name>Policy</name><pv_name>$(P)$(R)DestinationPolicy_RBV</pv_name><x>225</x><y>348</y><width>160</width><height>22</height><format>6</format></widget>
-  <widget type="label" version="2.0.0"><name>EndpointLabel</name><text>PVA</text><x>405</x><y>350</y><width>40</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-  <widget type="label" version="2.0.0"><name>Endpoint</name><text>pva://$(P)Pva1:Image</text><x>450</x><y>348</y><width>380</width><height>22</height></widget>
-  <widget type="label" version="2.0.0"><name>MessageLabel</name><text>Message</text><x>20</x><y>384</y><width>55</width><height>22</height><horizontal_alignment>2</horizontal_alignment></widget>
-  <widget type="textupdate" version="2.0.0">
-    <name>Message</name><pv_name>$(P)$(R)WriteFileMessage</pv_name>
-    <x>80</x><y>380</y><width>750</width><height>28</height><format>6</format>
-    <background_color><color red="245" green="245" blue="245"/></background_color><border_width>1</border_width>
+  <widget type="label" version="2.0.0">
+    <name>PreviewTitle</name><text>Preview image destination</text><x>34</x><y>178</y><width>350</width><height>24</height>
+    <font><font family="Sans" style="BOLD" size="14.0"/></font>
   </widget>
+  <widget type="label" version="2.0.0"><name>BaseLabel</name><text>Base</text><x>34</x><y>215</y><width>88</width><height>22</height></widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Base</name><pv_name>$(P)$(R)PrvImgFilePath</pv_name><x>126</x><y>211</y><width>454</width><height>25</height><format>6</format>
+    <background_color><color red="224" green="243" blue="252"/></background_color>
+    <tooltip>Destination URI. A TCP stream uses a tcp://listen base; a file destination uses file:/</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0"><name>BaseValid</name><pv_name>$(P)$(R)PrvImgFilePathExists_RBV</pv_name><x>595</x><y>214</y><width>19</width><height>19</height><off_color><color red="217" green="78" blue="78"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Destination base validation</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>BaseReadbackLabel</name><text>Readback</text><x>34</x><y>246</y><width>88</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>BaseReadback</name><pv_name>$(P)$(R)PrvImgFilePath_RBV</pv_name><x>126</x><y>243</y><width>454</width><height>23</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>PatternLabel</name><text>File pattern</text><x>34</x><y>280</y><width>88</width><height>22</height></widget>
+  <widget type="textentry" version="3.0.0"><name>Pattern</name><pv_name>$(P)$(R)PrvImgFileTemplate</pv_name><x>126</x><y>276</y><width>454</width><height>25</height><format>6</format><background_color><color red="224" green="243" blue="252"/></background_color><tooltip>Used for file destinations; ignored by the preview TCP stream</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>PatternReadbackLabel</name><text>Readback</text><x>34</x><y>311</y><width>88</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>PatternReadback</name><pv_name>$(P)$(R)PrvImgFileTemplate_RBV</pv_name><x>126</x><y>308</y><width>454</width><height>23</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>FormatLabel</name><text>Format</text><x>34</x><y>350</y><width>75</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>Format</name><pv_name>$(P)$(R)PrvImgFileFmt</pv_name><x>110</x><y>346</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>FormatReadback</name><pv_name>$(P)$(R)PrvImgFileFmt_RBV</pv_name><x>225</x><y>347</y><width>95</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ModeLabel</name><text>Mode</text><x>338</x><y>350</y><width>55</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>Mode</name><pv_name>$(P)$(R)PrvImgFileMode</pv_name><x>395</x><y>346</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ModeReadback</name><pv_name>$(P)$(R)PrvImgFileMode_RBV</pv_name><x>510</x><y>347</y><width>100</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>QueueLabel</name><text>Queue size</text><x>34</x><y>391</y><width>75</width><height>20</height></widget>
+  <widget type="textentry" version="3.0.0"><name>Queue</name><pv_name>$(P)$(R)PrvImgQueueSize</pv_name><x>110</x><y>387</y><width>78</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>QueueReadback</name><pv_name>$(P)$(R)PrvImgQueueSize_RBV</pv_name><x>193</x><y>388</y><width>77</width><height>22</height></widget>
+  <widget type="label" version="2.0.0"><name>PeriodLabel</name><text>Period (s)</text><x>338</x><y>391</y><width>70</width><height>20</height></widget>
+  <widget type="textentry" version="3.0.0"><name>Period</name><pv_name>$(P)$(R)PrvPeriod</pv_name><x>410</x><y>387</y><width>92</width><height>24</height><precision>6</precision><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>PeriodReadback</name><pv_name>$(P)$(R)PrvPeriod_RBV</pv_name><x>507</x><y>388</y><width>103</width><height>22</height><precision>6</precision></widget>
+  <widget type="label" version="2.0.0"><name>IntegrationLabel</name><text>Integration</text><x>34</x><y>432</y><width>75</width><height>20</height></widget>
+  <widget type="textentry" version="3.0.0"><name>Integration</name><pv_name>$(P)$(R)PrvImgIntgSize</pv_name><x>110</x><y>428</y><width>78</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>IntegrationReadback</name><pv_name>$(P)$(R)PrvImgIntgSize_RBV</pv_name><x>193</x><y>429</y><width>77</width><height>22</height></widget>
+  <widget type="label" version="2.0.0"><name>IntegrationModeLabel</name><text>Mode</text><x>338</x><y>432</y><width>55</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>IntegrationMode</name><pv_name>$(P)$(R)PrvImgIntgMode</pv_name><x>395</x><y>428</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>IntegrationModeReadback</name><pv_name>$(P)$(R)PrvImgIntgMode_RBV</pv_name><x>510</x><y>429</y><width>100</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>SamplingLabel</name><text>Sampling</text><x>34</x><y>473</y><width>75</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>Sampling</name><pv_name>$(P)$(R)PrvSmplgMode</pv_name><x>110</x><y>469</y><width>145</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>SamplingReadback</name><pv_name>$(P)$(R)PrvSmplgMode_RBV</pv_name><x>260</x><y>470</y><width>135</width><height>22</height><format>6</format></widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>DeliveryCard</name><x>656</x><y>165</y><width>306</width><height>355</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0"><name>DeliveryTitle</name><text>Delivery and scope</text><x>672</x><y>178</y><width>270</width><height>24</height><font><font family="Sans" style="BOLD" size="14.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>PvaLabel</name><text>PVA callbacks</text><x>672</x><y>218</y><width>135</width><height>22</height></widget>
+  <widget type="bool_button" version="2.0.0"><name>PvaEnable</name><pv_name>$(P)Pva1:EnableCallbacks</pv_name><bit>-1</bit><x>812</x><y>214</y><width>108</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Publish decoded preview NDArrays to the PVA image endpoint</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>PvaEndpointLabel</name><text>Preview endpoint</text><x>672</x><y>250</y><width>270</width><height>20</height><foreground_color><color red="92" green="105" blue="121"/></foreground_color></widget>
+  <widget type="label" version="2.0.0"><name>PvaEndpoint</name><text>pva://$(P)Pva1:Image</text><x>672</x><y>272</y><width>270</width><height>22</height></widget>
+  <widget type="label" version="2.0.0"><name>DiskLimitLabel</name><text>Stop on disk limit</text><x>672</x><y>319</y><width>160</width><height>22</height></widget>
+  <widget type="bool_button" version="2.0.0"><name>DiskLimit</name><pv_name>$(P)$(R)PrvStpOnDskLim</pv_name><bit>-1</bit><x>836</x><y>315</y><width>84</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Applies to file destinations</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ScopeTitle</name><text>Current TPX4 scope</text><x>672</x><y>372</y><width>270</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>ScopeBody</name><text>Preview 0 is the established path. Image 0 is available for validation and is off at startup. Raw, second channels and histogram remain blocked.</text><x>672</x><y>400</y><width>270</width><height>88</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>ImageCard</name><x>18</x><y>532</y><width>626</width><height>355</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0"><name>ImageTitle</name><text>Full image 0  /  Experimental</text><x>34</x><y>545</y><width>400</width><height>24</height><font><font family="Sans" style="BOLD" size="14.0"/></font></widget>
+  <widget type="bool_button" version="2.0.0"><name>WriteImage</name><pv_name>$(P)$(R)WriteImg</pv_name><bit>-1</bit><x>478</x><y>545</y><width>82</width><height>26</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Include Image[0] in the next destination push; off by default</tooltip></widget>
+  <widget type="led" version="2.0.0"><name>WriteImageRBV</name><pv_name>$(P)$(R)WriteImg_RBV</pv_name><x>570</x><y>548</y><width>20</width><height>20</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Image[0] enabled in Serval destination readback</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImageAppliedLabel</name><text>Applied</text><x>594</x><y>548</y><width>50</width><height>20</height></widget>
+  <widget type="label" version="2.0.0"><name>ImageBaseLabel</name><text>Base</text><x>34</x><y>583</y><width>88</width><height>22</height></widget>
+  <widget type="textentry" version="3.0.0"><name>ImageBase</name><pv_name>$(P)$(R)ImgFilePath</pv_name><x>126</x><y>579</y><width>454</width><height>25</height><format>6</format><background_color><color red="224" green="243" blue="252"/></background_color><tooltip>TCP jsonimage delivers NDArrays to the IOC; file:/ writes files in Serval</tooltip></widget>
+  <widget type="led" version="2.0.0"><name>ImageBaseValid</name><pv_name>$(P)$(R)ImgFilePathExists_RBV</pv_name><x>595</x><y>582</y><width>19</width><height>19</height><off_color><color red="217" green="78" blue="78"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Image destination base validation</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImageBaseReadbackLabel</name><text>Readback</text><x>34</x><y>614</y><width>88</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageBaseReadback</name><pv_name>$(P)$(R)ImgFilePath_RBV</pv_name><x>126</x><y>611</y><width>454</width><height>23</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ImagePatternLabel</name><text>File pattern</text><x>34</x><y>648</y><width>88</width><height>22</height></widget>
+  <widget type="textentry" version="3.0.0"><name>ImagePattern</name><pv_name>$(P)$(R)ImgFileTemplate</pv_name><x>126</x><y>644</y><width>454</width><height>25</height><format>6</format><background_color><color red="224" green="243" blue="252"/></background_color><tooltip>Used for file destinations; ignored by the image TCP stream</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImagePatternReadbackLabel</name><text>Readback</text><x>34</x><y>679</y><width>88</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImagePatternReadback</name><pv_name>$(P)$(R)ImgFileTemplate_RBV</pv_name><x>126</x><y>676</y><width>454</width><height>23</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ImageFormatLabel</name><text>Format</text><x>34</x><y>718</y><width>75</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>ImageFormat</name><pv_name>$(P)$(R)ImgFileFmt</pv_name><x>110</x><y>714</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageFormatReadback</name><pv_name>$(P)$(R)ImgFileFmt_RBV</pv_name><x>225</x><y>715</y><width>95</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ImageModeLabel</name><text>Mode</text><x>338</x><y>718</y><width>55</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>ImageMode</name><pv_name>$(P)$(R)ImgFileMode</pv_name><x>395</x><y>714</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageModeReadback</name><pv_name>$(P)$(R)ImgFileMode_RBV</pv_name><x>510</x><y>715</y><width>100</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ImageQueueLabel</name><text>Queue size</text><x>34</x><y>759</y><width>75</width><height>20</height></widget>
+  <widget type="textentry" version="3.0.0"><name>ImageQueue</name><pv_name>$(P)$(R)ImgQueueSize</pv_name><x>110</x><y>755</y><width>78</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageQueueReadback</name><pv_name>$(P)$(R)ImgQueueSize_RBV</pv_name><x>193</x><y>756</y><width>77</width><height>22</height></widget>
+  <widget type="label" version="2.0.0"><name>ImageIntegrationLabel</name><text>Integration</text><x>338</x><y>759</y><width>75</width><height>20</height></widget>
+  <widget type="textentry" version="3.0.0"><name>ImageIntegration</name><pv_name>$(P)$(R)ImgIntgSize</pv_name><x>414</x><y>755</y><width>78</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageIntegrationReadback</name><pv_name>$(P)$(R)ImgIntgSize_RBV</pv_name><x>497</x><y>756</y><width>77</width><height>22</height></widget>
+  <widget type="label" version="2.0.0"><name>ImageIntegrationModeLabel</name><text>Integration mode</text><x>34</x><y>800</y><width>125</width><height>20</height></widget>
+  <widget type="combo" version="2.0.0"><name>ImageIntegrationMode</name><pv_name>$(P)$(R)ImgIntgMode</pv_name><x>163</x><y>796</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
+  <widget type="textupdate" version="2.0.0"><name>ImageIntegrationModeReadback</name><pv_name>$(P)$(R)ImgIntgMode_RBV</pv_name><x>280</x><y>797</y><width>100</width><height>22</height><format>6</format></widget>
+  <widget type="label" version="2.0.0"><name>ImageHint</name><text>Use Image 0 with Serval 4.1.6 for validation; Serval 4.3 TCP framing needs investigation.</text><x>34</x><y>842</y><width>580</width><height>30</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>ImageStatusCard</name><x>656</x><y>532</y><width>306</width><height>355</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0"><name>ImageStatusTitle</name><text>Image stream</text><x>672</x><y>545</y><width>270</width><height>24</height><font><font family="Sans" style="BOLD" size="14.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>ArrayCounterLabel</name><text>IOC arrays (total)</text><x>672</x><y>590</y><width>150</width><height>22</height><tooltip>Cumulative full Image arrays received since IOC startup</tooltip></widget>
+  <widget type="textupdate" version="2.0.0"><name>ArrayCounter</name><pv_name>$(P)$(R)ArrayCounter_RBV</pv_name><x>824</x><y>587</y><width>106</width><height>24</height></widget>
+  <widget type="label" version="2.0.0"><name>ImageReceiverLabel</name><text>IOC TCP receiver</text><x>672</x><y>635</y><width>160</width><height>22</height></widget>
+  <widget type="bool_button" version="2.0.0"><name>ImageReceiver</name><pv_name>$(P)$(R)ImgAccumulationEnable</pv_name><bit>-1</bit><x>836</x><y>631</y><width>84</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Start the IOC Image TCP worker on the next acquisition</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImageReceiverRBVLabel</name><text>Receiver set</text><x>822</x><y>663</y><width>82</width><height>18</height></widget>
+  <widget type="led" version="2.0.0"><name>ImageReceiverRBV</name><pv_name>$(P)$(R)ImgAccumulationEnable_RBV</pv_name><x>906</x><y>663</y><width>17</width><height>17</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>IOC receiver setting readback</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImageDiskLimitLabel</name><text>Stop on disk limit</text><x>672</x><y>694</y><width>160</width><height>22</height></widget>
+  <widget type="bool_button" version="2.0.0"><name>ImageDiskLimit</name><pv_name>$(P)$(R)ImgStpOnDskLim</pv_name><bit>-1</bit><x>836</x><y>690</y><width>84</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Applies to file destinations</tooltip></widget>
+  <widget type="label" version="2.0.0"><name>ImageStatusHintTitle</name><text>Qualification check</text><x>672</x><y>745</y><width>270</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>ImageStatusHint</name><text>Image 0 starts disabled. Apply its destination, then compare this cumulative counter before and after a run. Check Images Complete separately.</text><x>672</x><y>772</y><width>270</width><height>80</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+
+  <widget type="rectangle" version="2.0.0">
+    <name>StatusCard</name><x>18</x><y>899</y><width>944</width><height>90</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color>
+    <background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0"><name>StatusTitle</name><text>Destination response</text><x>34</x><y>910</y><width>250</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>PolicyLabel</name><text>Policy</text><x>603</x><y>911</y><width>48</width><height>20</height></widget>
+  <widget type="textupdate" version="2.0.0"><name>Policy</name><pv_name>$(P)$(R)DestinationPolicy_RBV</pv_name><x>653</x><y>909</y><width>292</width><height>23</height><format>6</format></widget>
+  <widget type="textupdate" version="2.0.0"><name>Message</name><pv_name>$(P)$(R)WriteFileMessage</pv_name><x>34</x><y>941</y><width>911</width><height>32</height><format>6</format><background_color><color red="246" green="248" blue="251"/></background_color><border_width>1</border_width></widget>
 </display>

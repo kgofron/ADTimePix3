@@ -2,7 +2,7 @@
 
 Operator displays for **ADServal** (Display Builder `.bob` / legacy `.opi` fragments). Layout mirrors IOC boot **Option C** (`common/` + **`profiles/<family>/`**); see `iocBoot/iocTimePix/profiles/README.md`.
 
-## Layout (R1-7-2)
+## Layout (R1-8-0 experimental TPX4 branch)
 
 ```
 bob/
@@ -48,10 +48,10 @@ The emulator shell and TPX3 embed use the TPX3 fallback when opened directly; th
 
 | `common/` | `profiles/tpx3/` | `profiles/mpx3/` | `profiles/tpx4/` |
 |-----------|------------------|------------------|------------------|
-| ADSetup, ConnectionStatus, ADCollect, Mask, chip health | PrvHstHistogram, PrvImgMonitor, DetectorConfig, stream BOBs | Mpx3Preview/Image/HDF panels, Mpx3DetectorConfig | Preview-only destination panel |
+| ADSetup, ConnectionStatus, ADCollect, Mask, chip health | PrvHstHistogram, PrvImgMonitor, DetectorConfig, stream BOBs | Mpx3Preview/Image/HDF panels, Mpx3DetectorConfig | Preview and experimental Image destination panel |
 | ServerFileWriter, WriteFiles, ImgAccumulation | TimePix3Status toolbar (incl. Emulator/Serval), TimePix3Detector, TimePix3Alarm/API | Mpx3Status toolbar, Mpx3Alarm | TPX4 status/qualification boundary |
 
-Legacy CS-Studio **`.opi`**: **`tpx3App/op/opi/`** (not updated in R1-7-2).
+Legacy CS-Studio **`.opi`**: **`tpx3App/op/opi/`** (not updated for this TPX4 work).
 
 ## Validation
 
@@ -65,7 +65,8 @@ Beamline-specific display forks: gitignored `*_site.bob` or local Phoebus paths 
 
 `TimePix4.bob` embeds a minimal family profile containing generic AD controls,
 connection state, health, detector information, and an explicit qualification
-notice. It provides a restricted single-preview destination screen, but no
-mask, BPC/DACS, full-rate image, secondary preview, raw-event, histogram, MPX3
+notice. It provides a Preview destination and an experimental Image[0]
+destination with setpoints, readbacks, PVA delivery, and response status, but no
+mask, BPC/DACS, secondary preview, raw-event, histogram, MPX3
 threshold, or emulator-control buttons. Add those controls only after their
 TPX4 contracts have captured test evidence; do not copy the TPX3 profile tree.
