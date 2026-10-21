@@ -14,6 +14,68 @@
 The profile defaults to `SERVER_URL=http://localhost:8081` and
 `PREFIX=TPX4-TEST:`. Override those values in a site wrapper when necessary.
 
+## Emulator command port and connection workaround
+
+On 2026-10-21, the operator reported that TPX4 emulator 4.3.0 and Serval 4.3.0
+sometimes failed to establish a usable detector connection. The emulator was
+suspected to be listening on 50051. Enabling an explicit command-port override
+of **50001**, then restarting the emulator, allowed Serval to connect. The
+operator's emulator control screen showed **Cmd port (-DcmdPort)** set to
+`50001`, its **Enable** toggle on, and the generated command:
+
+```bash
+java -DhitRate=1 -Dtdc=0 -DcmdPort=50001 -jar /path/to/tpx4Emulator-4.3.0.jar
+```
+
+Replace the JAR path with the installed emulator. The `-DcmdPort=50001` option
+is a JVM property and belongs **before** `-jar`. Setting the numeric field in
+the control screen without enabling its override does not establish that the
+option is present; inspect the generated command and restart the emulator to
+apply it. The example preserves the reported hit-rate and disabled TDC
+settings; it does not qualify a ToF reference source.
+
+This is an operator-confirmed workaround for the reported 4.3/4.3 setup,
+not a demonstrated requirement for every version combination. Earlier logs
+with emulator 4.3.0 and Serval 4.1.6 showed connection attempts on 50000,
+50001 and 50051, including successful TCP connections on
+50051. Some attempts were followed by `Request to spidr failed. Closing
+connection to spidr.` A successful TCP connection alone therefore does not
+prove a usable detector session. Port 50051 is not established here as an
+always-failing port or the universal emulator default; the cause and frequency
+of the intermittent failures remain unqualified.
+
+Keep the emulator control port separate from the other endpoints:
+
+| Endpoint | Port in this setup | Purpose |
+|---|---|---|
+| Emulator command interface | 50001 with explicit override | Serval-to-emulator detector control |
+| Serval HTTP | 8081 | REST API and `/docs/` |
+| Preview 0 TCP | 8089 initially | Sampled `jsonimage` delivery to the IOC |
+| Image 0 TCP | 8087 initially | Full Image `jsonimage` delivery to the IOC |
+
+The IOC may rotate occupied image-stream ports; use the applied destination
+readback for their actual values. Changing an Image/Preview Base or Serval's
+HTTP port does not change the emulator command port.
+
+For an affected emulator setup:
+
+1. Stop acquisition and stop the emulator before changing its command port.
+2. Enable the 50001 override, verify `-DcmdPort=50001` in the generated
+   command, and start the emulator. Ensure no other local emulator owns that
+   port. A local `ss -ltn 'sport = :50001'` check can confirm a TCP listener,
+   but cannot validate its detector protocol.
+3. Start or reconnect Serval after the emulator is ready. Check for a usable
+   TPX4 detector session, not just a successful socket connection: detector
+   discovery should report TPX4, one chip and 448×512 geometry without repeated
+   SPIDR request failures.
+4. Start the TPX4 IOC to configure Preview. If Serval was restarted while the
+   IOC remained running, explicitly apply the destination while idle; automatic
+   reconnect refreshes readbacks without recreating the destination. A fresh
+   Serval can legitimately report `Destination is not set.` until configured.
+5. Verify a short Preview acquisition, then Image 0 if enabled. Record both
+   JAR versions, the effective emulator command port and relevant connection
+   logs when comparing runs. Other version combinations still need validation.
+
 ## Conservative startup
 
 Run from the IOC boot directory after starting the matching emulator and

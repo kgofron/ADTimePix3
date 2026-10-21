@@ -6,6 +6,20 @@ not as a TPX3 configuration variant. The tested setup is one TPX4 emulator
 4.3.0-EXPERIMENTAL (build 1966). The initial emulator setup disabled TDC
 generation (`-Dtdc=0`); histogram timing remains unqualified.
 
+## Findings, 2026-10-21
+
+| Area | Finding |
+|---|---|
+| Preview and Image | With the decoder fix, the operator confirmed Preview and latest-frame, Last-N sum and accumulated-sum Image display with emulator/Serval 4.3. |
+| Serval 4.3 framing | Image payloads have alignment spaces before the terminating newline. The decoder supports this and legacy framing, and honors `bigEndian`. |
+| Histogram | Both tested Serval versions accept TCP `jsonhisto` / `tof` settings but reject TPX4 acquisition start with `Histopars can only be defined for TPX.` The setup screen remains read-only. |
+| Emulator connection | The operator reported intermittent connection failures with emulator/Serval 4.3. Explicitly setting emulator `-DcmdPort=50001` restored connection. Earlier logs also showed successful connections on 50051; a universal default-port or discovery failure has not been established. |
+
+For the launch command and recovery steps, see
+[Emulator command port and connection workaround](integration.md#emulator-command-port-and-connection-workaround).
+The detailed qualification record distinguishes automated captures, operator
+display checks and work that remains unqualified.
+
 ## Captured detector contract
 
 The local Serval detector snapshot reports:
