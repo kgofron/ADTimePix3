@@ -1702,6 +1702,10 @@ ADTimePix::ADTimePix(const char* portName, const char* serverURL, int maxBuffers
     createParam(ADTimePixImgThresholdIDString,               asynParamInt32, &ADTimePixImgThresholdID);
     createParam(ADTimePixImgTimeAtFrameString,               asynParamFloat64, &ADTimePixImgTimeAtFrame);
     createParam(ADTimePixImgAcqRateString,                   asynParamFloat64, &ADTimePixImgAcqRate);
+    createParam(ADTimePixImgSizeXString,                     asynParamInt32, &ADTimePixImgSizeX);
+    createParam(ADTimePixImgSizeYString,                     asynParamInt32, &ADTimePixImgSizeY);
+    createParam(ADTimePixImgFramesReceivedString,            asynParamInt32, &ADTimePixImgFramesReceived);
+    createParam(ADTimePixImgAccumulatedFramesString,         asynParamInt64, &ADTimePixImgAccumulatedFrames);
     // Img channel accumulation and display data
     createParam(ADTimePixImgImageDataString,                 asynParamInt64Array, &ADTimePixImgImageData);
     createParam(ADTimePixImgImageFrameString,                asynParamInt32Array, &ADTimePixImgImageFrame);
@@ -1989,6 +1993,10 @@ ADTimePix::ADTimePix(const char* portName, const char* serverURL, int maxBuffers
     
     // Set initial parameter values
     setIntegerParam(ADTimePixImgAccumulationEnable, 1);  // Default: enabled
+    setIntegerParam(ADTimePixImgSizeX, 0);
+    setIntegerParam(ADTimePixImgSizeY, 0);
+    setIntegerParam(ADTimePixImgFramesReceived, 0);
+    setInteger64Param(ADTimePixImgAccumulatedFrames, 0);
     setIntegerParam(ADTimePixPrvHstAccumulationEnable, 1);  // Default: enabled
     setIntegerParam(ADTimePixPrvHstFramesToSum, prvHstFramesToSum_);
     setIntegerParam(ADTimePixPrvHstSumUpdateInterval, prvHstSumUpdateIntervalFrames_);

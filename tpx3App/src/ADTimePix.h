@@ -274,6 +274,10 @@
 #define ADTimePixImgThresholdIDString           "TPX3_IMG_THRESHOLD_ID"     // (asynInt32,         r)      thresholdID from Image jsonimage header
 #define ADTimePixImgTimeAtFrameString           "TPX3_IMG_TIME_AT_FRAME"    // (asynFloat64,       r)      Timestamp at frame (nanoseconds)
 #define ADTimePixImgAcqRateString               "TPX3_IMG_ACQ_RATE"         // (asynFloat64,       r)      Calculated acquisition rate (fps)
+#define ADTimePixImgSizeXString                 "TPX3_IMG_SIZE_X"           // Image-stream raster width (independent of Preview)
+#define ADTimePixImgSizeYString                 "TPX3_IMG_SIZE_Y"           // Image-stream raster height
+#define ADTimePixImgFramesReceivedString        "TPX3_IMG_FRAMES_RECEIVED"  // Complete Image messages since acquisition start
+#define ADTimePixImgAccumulatedFramesString     "TPX3_IMG_ACCUMULATED_FRAMES" // Frames since acquisition start or Clear
     // Img channel accumulation and display data
 #define ADTimePixImgImageDataString             "TPX3_IMG_IMAGE_DATA"        // (asynInt64Array,    r)      Accumulated image data
 #define ADTimePixImgImageFrameString            "TPX3_IMG_IMAGE_FRAME"       // (asynInt32Array,    r)      Current frame data
@@ -690,6 +694,10 @@ class ADTimePix : public ADDriver{
         int ADTimePixImgThresholdID;
         int ADTimePixImgTimeAtFrame;
         int ADTimePixImgAcqRate;
+        int ADTimePixImgSizeX;
+        int ADTimePixImgSizeY;
+        int ADTimePixImgFramesReceived;
+        int ADTimePixImgAccumulatedFrames;
         // Img channel accumulation and display data
         int ADTimePixImgImageData;
         int ADTimePixImgImageFrame;
@@ -1186,6 +1194,7 @@ class ADTimePix : public ADDriver{
         bool configureImgRollingWindow(size_t pixelCount);
         bool configurePrvHstRollingWindow(size_t binCount);
         void resetImgAccumulation();
+        void publishFinalImgRollingSum();
         void resetPrvHstAccumulation();
         void updateImgRangeState(ADTimePix3Numeric::RangeState state);
         void updatePrvHstRangeState(ADTimePix3Numeric::RangeState state);

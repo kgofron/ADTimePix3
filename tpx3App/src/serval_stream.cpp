@@ -891,6 +891,12 @@ bool ADTimePix::processImgDataLine(char* line_buffer, char* newline_pos, size_t 
         
         // Set Img metadata PVs
         setIntegerParam(ADTimePixImgFrameNumber, frame_number);
+        setIntegerParam(ADTimePixImgSizeX, width);
+        setIntegerParam(ADTimePixImgSizeY, height);
+        int receivedFrames = 0;
+        getIntegerParam(ADTimePixImgFramesReceived, &receivedFrames);
+        if (receivedFrames < INT32_MAX) ++receivedFrames;
+        setIntegerParam(ADTimePixImgFramesReceived, receivedFrames);
         setIntegerParam(ADTimePixImgThresholdID, threshold_id);
         setDoubleParam(ADTimePixImgTimeAtFrame, time_at_frame);
         
@@ -1177,8 +1183,11 @@ void ADTimePix::processImgFrame(const ImageData& frame_data) {
     size_t image_sum_size = 0;
     bool has_running_sum = (imgRunningSum_ != nullptr);
     bool has_current_frame = (imgCurrentFrame_.get_pixel_count() > 0);
+    // Publish the first frame after Clear/start/geometry change immediately, so
+    // a throttled Last-N display cannot expose the preceding window's pixels.
     bool should_update_sum = windowPushOk &&
-        imgFramesSinceLastSumUpdate_ >= imgSumUpdateIntervalFrames_ &&
+        (imgFramesSinceLastSumUpdate_ >= imgSumUpdateIntervalFrames_ ||
+         imgWindowSum_.frameCount() == 1) &&
         imgWindowSum_.frameCount() > 0;
     
     if (has_running_sum) {
@@ -1356,6 +1365,12 @@ void ADTimePix::updateImgPerformanceMetrics() {
         updateImgRangeState(ADTimePix3Numeric::RangeState::OutputClamped);
     }
     setInteger64Param(ADTimePixImgTotalCounts, publicTotal);
+    bool framesClamped = false;
+    setInteger64Param(ADTimePixImgAccumulatedFrames,
+                     ADTimePix3Numeric::clampToInt64(imgAccumulatedFrameCount_, framesClamped));
+    if (framesClamped) {
+        updateImgRangeState(ADTimePix3Numeric::RangeState::OutputClamped);
+    }
     
     // Calculate memory usage periodically (every 5 seconds) or more frequently if buffer is growing
     // Update more frequently if frame buffer is near capacity to catch memory growth
@@ -1418,12 +1433,37 @@ double ADTimePix::calculateImgMemoryUsageMB() {
     return total_mb;
 }
 
+void ADTimePix::publishFinalImgRollingSum() {
+    if (!imgMutex_) return;
+
+    std::vector<epicsInt64> snapshot;
+    epicsMutexLock(imgMutex_);
+    // Receivers have stopped. Publish any tail skipped by the regular Last-N
+    // publication interval so the retained plot represents the final window.
+    if (imgFramesSinceLastSumUpdate_ > 0 && imgWindowSum_.frameCount() > 0) {
+        const std::vector<uint64_t>& sum = imgWindowSum_.sum();
+        snapshot.resize(sum.size());
+        for (size_t index = 0; index < sum.size(); ++index) {
+            snapshot[index] = ADTimePix3Numeric::preserveUInt64Bits(sum[index]);
+        }
+        imgSumArray64Buffer_ = snapshot;
+        imgFramesSinceLastSumUpdate_ = 0;
+    }
+    epicsMutexUnlock(imgMutex_);
+
+    if (!snapshot.empty()) {
+        doCallbacksInt64Array(snapshot.data(), snapshot.size(),
+                              ADTimePixImgImageSumNFrames, 0);
+    }
+}
+
 void ADTimePix::resetImgAccumulation() {
     imgRunningSum_.reset();
     imgWindowSum_.reset();
     setIntegerParam(ADTimePixImgFramesSummed, 0);
     imgTotalCounts_ = 0;
     imgAccumulatedFrameCount_ = 0;
+    setInteger64Param(ADTimePixImgAccumulatedFrames, 0);
     updateImgRangeState(ADTimePix3Numeric::RangeState::Ok);
     imgFramesSinceLastSumUpdate_ = 0;
     imgProcessingTime_ = 0.0;

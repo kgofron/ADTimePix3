@@ -409,6 +409,17 @@ asynStatus ADTimePix::acquireStart(){
         return failStart(failureMessage);
     }
 
+    // The remote start succeeded, and no new receiver is running yet. Reset
+    // image data here so Stop (including fault cleanup) preserves the last run
+    // and the next run cannot inherit its sums or received-message count.
+    if (imgMutex_) {
+        epicsMutexLock(imgMutex_);
+        setIntegerParam(ADTimePixImgFramesReceived, 0);
+        resetImgAccumulation();
+        epicsMutexUnlock(imgMutex_);
+        callParamCallbacks();
+    }
+
     {
         int logHeaders = 0;
         getIntegerParam(ADTimePixPrvImgLogHeaders, &logHeaders);

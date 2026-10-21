@@ -138,7 +138,8 @@ void ADTimePix::resetAcquisitionRuntimeState()
         imgAcquisitionRate_ = 0.0;
         imgRateSamples_.clear();
         setDoubleParam(ADTimePixImgAcqRate, 0.0);
-        resetImgAccumulation();
+        // Keep the completed run's images, sums and contribution counts for
+        // inspection. A new acquisition resets them before starting receivers.
         epicsMutexUnlock(imgMutex_);
     }
 
@@ -209,6 +210,7 @@ asynStatus ADTimePix::stopAcquisition(
     }
 
     stopAndJoinStreamWorkers();
+    publishFinalImgRollingSum();
     resetAcquisitionRuntimeState();
 
     bool remoteStopped = !hadRemote;

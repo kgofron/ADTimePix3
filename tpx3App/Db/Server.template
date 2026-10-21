@@ -605,6 +605,41 @@ record(ai, "$(P)$(R)ImgAcqRate_RBV")
 }
 
 # Img channel accumulation and display data
+# These readbacks describe Image messages only; Preview can have other dimensions
+# and can also increment the shared areaDetector NDArray counter.
+record(longin, "$(P)$(R)ImgSizeX_RBV")
+{
+    field(DESC, "Image stream width")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_IMG_SIZE_X")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)ImgSizeY_RBV")
+{
+    field(DESC, "Image stream height")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_IMG_SIZE_Y")
+    field(SCAN, "I/O Intr")
+}
+
+record(longin, "$(P)$(R)ImgFramesReceived_RBV")
+{
+    field(DESC, "Image messages since acquire start")
+    field(DTYP, "asynInt32")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_IMG_FRAMES_RECEIVED")
+    field(HOPR, "2147483647")
+    field(SCAN, "I/O Intr")
+}
+
+record(int64in, "$(P)$(R)ImgAccumulatedFrames_RBV")
+{
+    field(DESC, "Frames since acquire start or clear")
+    field(DTYP, "asynInt64")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_IMG_ACCUMULATED_FRAMES")
+    field(SCAN, "I/O Intr")
+}
+
 # MAX_PIXELS: 262144 for 512x512 detector (can be overridden via macro)
 record(waveform, "$(P)$(R)ImgImageData")
 {
