@@ -44,6 +44,19 @@
     <foreground_color><color red="150" green="60" blue="0"/></foreground_color>
   </widget>
   <widget type="action_button" version="3.0.0">
+    <name>ImageBtn</name>
+    <actions>
+      <action type="open_display">
+        <description>Timepix4 Image</description>
+        <file>Acquire/Tpx4Image.bob</file>
+        <target>tab</target>
+      </action>
+    </actions>
+    <text>Image</text>
+    <x>15</x><y>153</y><width>150</width><height>25</height>
+    <background_color><color red="115" green="223" blue="255"/></background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
     <name>DestinationsBtn</name>
     <actions>
       <action type="open_display">

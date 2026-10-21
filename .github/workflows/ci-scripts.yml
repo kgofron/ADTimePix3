@@ -111,6 +111,8 @@ jobs:
           python3 test/verify_coordinate_map.py
           python3 test/validate_bob_xml.py
           python3 test/validate_bob_prefix_macros.py
+          python3 test/test_image_intensity.py
+          python3 test/test_image_geometry.py
           reuse lint
           git diff --check
 

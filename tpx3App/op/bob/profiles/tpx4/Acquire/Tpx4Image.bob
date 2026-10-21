@@ -1,0 +1,1009 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Tpx4Image</name><width>1240</width><height>900</height>
+  <background_color><color red="242" green="245" blue="249"/></background_color>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name><x>0</x><y>0</y><width>1240</width><height>64</height>
+    <line_width>0</line_width><background_color><color red="31" green="50" blue="73"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name><x>20</x><y>8</y><width>700</width><height>28</height>
+    <text>Timepix4  /  Image</text><font><font family="Sans" style="BOLD" size="18.0"/></font><foreground_color><color red="255" green="255" blue="255"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name><x>21</x><y>37</y><width>1000</width><height>20</height>
+    <text>$(P)$(R)  •  Full Image stream: latest frame, rolling sum, accumulated sum</text><foreground_color><color red="210" green="225" blue="241"/></foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>ImageCard</name><x>18</x><y>76</y><width>780</width><height>744</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color><background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ViewLabel</name><x>32</x><y>90</y><width>55</width><height>22</height>
+    <text>View</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>View</name><x>92</x><y>86</y><width>230</width><height>28</height>
+    <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name><items_from_pv>true</items_from_pv>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PixelModeLabel</name><x>348</x><y>90</y><width>90</width><height>22</height>
+    <text>Pixel mode</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>PixelMode</name><x>440</x><y>90</y><width>100</width><height>24</height>
+    <pv_name>$(P)$(R)ImgFileMode_RBV</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>DimensionsLabel</name><x>553</x><y>90</y><width>105</width><height>22</height>
+    <text>Width / height</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Width</name><x>659</x><y>90</y><width>55</width><height>24</height>
+    <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Height</name><x>725</x><y>90</y><width>55</width><height>24</height>
+    <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>IntensityPanel</name>
+    <x>678</x>
+    <y>130</y>
+    <width>110</width>
+    <height>672</height>
+    <line_width>1</line_width>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="248" green="250" blue="252" />
+    </background_color>
+    <transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NoImage</name>
+    <x>70</x>
+    <y>365</y>
+    <width>578</width>
+    <height>100</height>
+    <text>Waiting for processed Image data.
+Enable Image 0 with a TCP jsonimage destination, enable processing, then acquire.</text>
+    <wrap_words>true</wrap_words>
+    <horizontal_alignment>1</horizontal_alignment>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="image" version="2.0.0">
+    <name>LatestFrame</name>
+    <x>32</x>
+    <y>130</y>
+    <width>638</width>
+    <height>672</height>
+    <pv_name>$(P)$(R)ImgImageFrame</pv_name>
+    <visible>false</visible>
+    <data_width>1</data_width>
+    <data_height>1</data_height>
+    <color_map>
+      <name>JET</name>
+    </color_map>
+    <autoscale>false</autoscale>
+    <minimum>0</minimum>
+    <maximum>1000</maximum>
+    <x_axis>
+      <visible>true</visible>
+      <title>X (pixel)</title>
+      <minimum>0.0</minimum>
+      <maximum>1.0</maximum>
+    </x_axis>
+    <y_axis>
+      <visible>true</visible>
+      <title>Y (pixel)</title>
+      <minimum>1.0</minimum>
+      <maximum>0.0</maximum>
+    </y_axis>
+    <tooltip>Latest processed Image message; native pixel values.</tooltip>
+    <rules>
+      <rule name="Selected view with processed data" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0 &amp;&amp; pv1&gt;0 &amp;&amp; pvInt2&gt;0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+        <pv_name>$(P)$(R)ImgAccumulatedFrames_RBV</pv_name>
+        <pv_name>$(P)$(R)ImgAccumulationEnable_RBV</pv_name>
+      </rule>
+      <rule name="Image width" prop_id="data_width" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Image height" prop_id="data_height" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+      <rule name="X maximum" prop_id="x_axis.maximum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Y minimum" prop_id="y_axis.minimum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+    </rules>
+    <scripts>
+      <script file="image_intensity.py">
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LatestFrameAuto(1)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LatestFrameMin(0)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LatestFrameMax(1000)</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageFrame</pv_name>
+      </script>
+      <script file="image_geometry.py">
+        <pv_name trigger="true">$(P)$(R)ImgSizeX_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgSizeY_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageFrame</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </script>
+    </scripts>
+  </widget>
+
+  <widget type="image" version="2.0.0">
+    <name>LastNSum</name>
+    <x>32</x>
+    <y>130</y>
+    <width>638</width>
+    <height>672</height>
+    <pv_name>$(P)$(R)ImgImageSumNFrames</pv_name>
+    <visible>false</visible>
+    <data_width>1</data_width>
+    <data_height>1</data_height>
+    <color_map>
+      <name>JET</name>
+    </color_map>
+    <autoscale>false</autoscale>
+    <minimum>0</minimum>
+    <maximum>1000</maximum>
+    <x_axis>
+      <visible>true</visible>
+      <title>X (pixel)</title>
+      <minimum>0.0</minimum>
+      <maximum>1.0</maximum>
+    </x_axis>
+    <y_axis>
+      <visible>true</visible>
+      <title>Y (pixel)</title>
+      <minimum>1.0</minimum>
+      <maximum>0.0</maximum>
+    </y_axis>
+    <tooltip>Rolling sum of received Image messages; native pixel units.</tooltip>
+    <rules>
+      <rule name="Selected view with processed data" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1 &amp;&amp; pv1&gt;0 &amp;&amp; pvInt2&gt;0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+        <pv_name>$(P)$(R)ImgFramesSummed_RBV</pv_name>
+        <pv_name>$(P)$(R)ImgAccumulationEnable_RBV</pv_name>
+      </rule>
+      <rule name="Image width" prop_id="data_width" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Image height" prop_id="data_height" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+      <rule name="X maximum" prop_id="x_axis.maximum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Y minimum" prop_id="y_axis.minimum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+    </rules>
+    <scripts>
+      <script file="image_intensity.py">
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LastNSumAuto(1)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LastNSumMin(0)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4LastNSumMax(1000)</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageSumNFrames</pv_name>
+      </script>
+      <script file="image_geometry.py">
+        <pv_name trigger="true">$(P)$(R)ImgSizeX_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgSizeY_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageSumNFrames</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </script>
+    </scripts>
+  </widget>
+
+  <widget type="image" version="2.0.0">
+    <name>AccumulatedSum</name>
+    <x>32</x>
+    <y>130</y>
+    <width>638</width>
+    <height>672</height>
+    <pv_name>$(P)$(R)ImgImageData</pv_name>
+    <visible>false</visible>
+    <data_width>1</data_width>
+    <data_height>1</data_height>
+    <color_map>
+      <name>JET</name>
+    </color_map>
+    <autoscale>false</autoscale>
+    <minimum>0</minimum>
+    <maximum>1000</maximum>
+    <x_axis>
+      <visible>true</visible>
+      <title>X (pixel)</title>
+      <minimum>0.0</minimum>
+      <maximum>1.0</maximum>
+    </x_axis>
+    <y_axis>
+      <visible>true</visible>
+      <title>Y (pixel)</title>
+      <minimum>1.0</minimum>
+      <maximum>0.0</maximum>
+    </y_axis>
+    <tooltip>Sum since acquisition start or Clear; native pixel units.</tooltip>
+    <rules>
+      <rule name="Selected view with processed data" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2 &amp;&amp; pv1&gt;0 &amp;&amp; pvInt2&gt;0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+        <pv_name>$(P)$(R)ImgAccumulatedFrames_RBV</pv_name>
+        <pv_name>$(P)$(R)ImgAccumulationEnable_RBV</pv_name>
+      </rule>
+      <rule name="Image width" prop_id="data_width" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Image height" prop_id="data_height" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+      <rule name="X maximum" prop_id="x_axis.maximum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeX_RBV</pv_name>
+      </rule>
+      <rule name="Y minimum" prop_id="y_axis.minimum" out_exp="true">
+        <exp bool_exp="pvInt0&gt;0">
+          <expression>pvInt0</expression>
+        </exp>
+        <pv_name>$(P)$(R)ImgSizeY_RBV</pv_name>
+      </rule>
+    </rules>
+    <scripts>
+      <script file="image_intensity.py">
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4AccumulatedSumAuto(1)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4AccumulatedSumMin(0)</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4AccumulatedSumMax(1000)</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageData</pv_name>
+      </script>
+      <script file="image_geometry.py">
+        <pv_name trigger="true">$(P)$(R)ImgSizeX_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgSizeY_RBV</pv_name>
+        <pv_name trigger="true">$(P)$(R)ImgImageData</pv_name>
+        <pv_name trigger="true">loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </script>
+    </scripts>
+  </widget>
+
+  <widget type="label" version="2.0.0">
+    <name>ScaleLabel</name>
+    <x>690</x>
+    <y>140</y>
+    <width>90</width>
+    <height>24</height>
+    <text>Intensity</text>
+    <font>
+      <font family="Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>MinLabel</name>
+    <x>690</x>
+    <y>694</y>
+    <width>90</width>
+    <height>22</height>
+    <text>Min</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>MaxLabel</name>
+    <x>690</x>
+    <y>216</y>
+    <width>90</width>
+    <height>22</height>
+    <text>Max</text>
+  </widget>
+
+  <widget type="bool_button" version="2.0.0">
+    <name>LatestFrameAutoscale</name>
+    <x>690</x>
+    <y>174</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <pv_name>loc://$(P)$(R)Tpx4LatestFrameAuto(1)</pv_name>
+    <bit>-1</bit>
+    <off_label>Manual</off_label>
+    <on_label>Auto</on_label>
+    <tooltip>Auto follows the full image. Switch to Manual to freeze the current limits.</tooltip>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>LatestFrameMinimum</name>
+    <x>690</x>
+    <y>718</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameMin(0)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameMin(0)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LatestFrameMin(0)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>LatestFrameMaximum</name>
+    <x>690</x>
+    <y>240</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameMax(1000)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameMax(1000)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LatestFrameMax(1000)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>LatestFrameScaleHint</name>
+    <x>690</x>
+    <y>758</y>
+    <width>90</width>
+    <height>42</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <text>Loading intensity script...</text>
+    <wrap_words>true</wrap_words>
+    <font>
+      <font family="Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>LatestFrameScaleSlider</name>
+    <x>710</x>
+    <y>284</y>
+    <width>48</width>
+    <height>394</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LatestFrameAuto(1)</pv_name>
+      </rule>
+    </rules>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LatestFrameMax(1000)</pv_name>
+    <horizontal>false</horizontal>
+    <limits_from_pv>false</limits_from_pv>
+    <show_scale>false</show_scale>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
+    <minimum>0</minimum>
+    <maximum>2000</maximum>
+    <increment>1</increment>
+    <tooltip>Manual upper color limit. Type a larger Max to extend the slider range.</tooltip>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>LastNSumAutoscale</name>
+    <x>690</x>
+    <y>174</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <pv_name>loc://$(P)$(R)Tpx4LastNSumAuto(1)</pv_name>
+    <bit>-1</bit>
+    <off_label>Manual</off_label>
+    <on_label>Auto</on_label>
+    <tooltip>Auto follows the full image. Switch to Manual to freeze the current limits.</tooltip>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>LastNSumMinimum</name>
+    <x>690</x>
+    <y>718</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumMin(0)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumMin(0)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LastNSumMin(0)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>LastNSumMaximum</name>
+    <x>690</x>
+    <y>240</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumMax(1000)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumMax(1000)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LastNSumMax(1000)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>LastNSumScaleHint</name>
+    <x>690</x>
+    <y>758</y>
+    <width>90</width>
+    <height>42</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <text>Loading intensity script...</text>
+    <wrap_words>true</wrap_words>
+    <font>
+      <font family="Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>LastNSumScaleSlider</name>
+    <x>710</x>
+    <y>284</y>
+    <width>48</width>
+    <height>394</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==1">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4LastNSumAuto(1)</pv_name>
+      </rule>
+    </rules>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4LastNSumMax(1000)</pv_name>
+    <horizontal>false</horizontal>
+    <limits_from_pv>false</limits_from_pv>
+    <show_scale>false</show_scale>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
+    <minimum>0</minimum>
+    <maximum>2000</maximum>
+    <increment>1</increment>
+    <tooltip>Manual upper color limit. Type a larger Max to extend the slider range.</tooltip>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>AccumulatedSumAutoscale</name>
+    <x>690</x>
+    <y>174</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumAuto(1)</pv_name>
+    <bit>-1</bit>
+    <off_label>Manual</off_label>
+    <on_label>Auto</on_label>
+    <tooltip>Auto follows the full image. Switch to Manual to freeze the current limits.</tooltip>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>AccumulatedSumMinimum</name>
+    <x>690</x>
+    <y>718</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMin(0)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMin(0)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMin(0)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>AccumulatedSumMaximum</name>
+    <x>690</x>
+    <y>240</y>
+    <width>90</width>
+    <height>28</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumAuto(1)</pv_name>
+      </rule>
+      <rule name="Large intensity: scientific notation" prop_id="format" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>2</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMax(1000)</pv_name>
+      </rule>
+      <rule name="Large intensity: four significant digits" prop_id="precision" out_exp="false">
+        <exp bool_exp="pv0&gt;=1000000000 || pv0&lt;=-100000000">
+          <value>3</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMax(1000)</pv_name>
+      </rule>
+    </rules>
+    <precision>0</precision>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMax(1000)</pv_name>
+    <tooltip>Applied color limit; editable in Manual. Changes affect this view only.</tooltip>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AccumulatedSumScaleHint</name>
+    <x>690</x>
+    <y>758</y>
+    <width>90</width>
+    <height>42</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+    </rules>
+    <text>Loading intensity script...</text>
+    <wrap_words>true</wrap_words>
+    <font>
+      <font family="Sans" style="REGULAR" size="11.0" />
+    </font>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>AccumulatedSumScaleSlider</name>
+    <x>710</x>
+    <y>284</y>
+    <width>48</width>
+    <height>394</height>
+    <visible>false</visible>
+    <rules>
+      <rule name="Selected view" prop_id="visible" out_exp="false">
+        <exp bool_exp="pvInt0==2">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4ImageViewMode&lt;VEnum&gt;(0,"Latest frame","Last N sum","Accumulated sum")</pv_name>
+      </rule>
+      <rule name="Editable in Manual" prop_id="enabled" out_exp="false">
+        <exp bool_exp="pvInt0==0">
+          <value>true</value>
+        </exp>
+        <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumAuto(1)</pv_name>
+      </rule>
+    </rules>
+    <enabled>false</enabled>
+    <pv_name>loc://$(P)$(R)Tpx4AccumulatedSumMax(1000)</pv_name>
+    <horizontal>false</horizontal>
+    <limits_from_pv>false</limits_from_pv>
+    <show_scale>false</show_scale>
+    <show_hihi>false</show_hihi>
+    <show_high>false</show_high>
+    <show_low>false</show_low>
+    <show_lolo>false</show_lolo>
+    <minimum>0</minimum>
+    <maximum>2000</maximum>
+    <increment>1</increment>
+    <tooltip>Manual upper color limit. Type a larger Max to extend the slider range.</tooltip>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>AcquireCard</name><x>810</x><y>76</y><width>412</width><height>193</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color><background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AcquireTitle</name><x>824</x><y>87</y><width>180</width><height>24</height>
+    <text>Acquisition</text><font><font family="Sans" style="BOLD" size="12.0"/></font>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Start</name><x>1020</x><y>85</y><width>88</width><height>28</height>
+    <text>Start</text><actions><action type="write_pv"><description>Start</description><pv_name>$(P)$(R)Acquire</pv_name><value>1</value></action></actions><background_color><color red="224" green="243" blue="252"/></background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Stop</name><x>1118</x><y>85</y><width>88</width><height>28</height>
+    <text>Stop</text><actions><action type="write_pv"><description>Stop</description><pv_name>$(P)$(R)Acquire</pv_name><value>0</value></action></actions><background_color><color red="224" green="243" blue="252"/></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>DetectorStateLabel</name><x>824</x><y>121</y><width>212</width><height>22</height>
+    <text>Detector state</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>DetectorState</name><x>1044</x><y>121</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)DetectorState_RBV</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ExposureLabel</name><x>824</x><y>150</y><width>145</width><height>22</height>
+    <text>Exposure (s)</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Exposure</name><x>972</x><y>147</y><width>112</width><height>24</height>
+    <pv_name>$(P)$(R)AcquireTime</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ExposureReadback</name><x>1092</x><y>149</y><width>116</width><height>24</height>
+    <pv_name>$(P)$(R)AcquireTime_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ImagesLabel</name><x>824</x><y>181</y><width>145</width><height>22</height>
+    <text>Requested images</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>NumImages</name><x>972</x><y>178</y><width>112</width><height>24</height>
+    <pv_name>$(P)$(R)NumImages</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>NumImagesReadback</name><x>1092</x><y>180</y><width>116</width><height>24</height>
+    <pv_name>$(P)$(R)NumImages_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ServerImagesLabel</name><x>824</x><y>211</y><width>212</width><height>22</height>
+    <text>Server images complete</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ServerImages</name><x>1044</x><y>211</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)NumImagesCounter_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AcquisitionHint</name><x>824</x><y>241</y><width>384</width><height>20</height>
+    <text>Sums reset automatically at acquisition start.</text><foreground_color><color red="92" green="105" blue="121"/></foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>StreamCard</name><x>810</x><y>281</y><width>412</width><height>283</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color><background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>StreamTitle</name><x>824</x><y>292</y><width>200</width><height>24</height>
+    <text>Image stream</text><font><font family="Sans" style="BOLD" size="12.0"/></font>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Destinations</name><x>1070</x><y>289</y><width>136</width><height>28</height>
+    <text>Destinations</text><actions><action type="open_display"><description>Timepix4 destinations</description><file>Tpx4ServerFileWriter.bob</file><target>tab</target></action></actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ImageEnabledLabel</name><x>824</x><y>329</y><width>212</width><height>22</height>
+    <text>Image destination applied</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ImageEnabled</name><x>1044</x><y>329</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)WriteImg_RBV</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ProcessingLabel</name><x>824</x><y>360</y><width>210</width><height>22</height>
+    <text>Frame / sum processing</text>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Processing</name><x>1044</x><y>355</y><width>164</width><height>28</height>
+    <pv_name>$(P)$(R)ImgAccumulationEnable</pv_name><bit>-1</bit><off_label>Disabled</off_label><on_label>Enabled</on_label>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FramesReceivedLabel</name><x>824</x><y>392</y><width>212</width><height>22</height>
+    <text>Image messages received</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FramesReceived</name><x>1044</x><y>392</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgFramesReceived_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FrameNumberLabel</name><x>824</x><y>421</y><width>212</width><height>22</height>
+    <text>Server Image frame ID</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>FrameNumber</name><x>1044</x><y>421</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgFrameNumber_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AccumulatedFramesLabel</name><x>824</x><y>450</y><width>212</width><height>22</height>
+    <text>Accumulated frames</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>AccumulatedFrames</name><x>1044</x><y>450</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgAccumulatedFrames_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RollingFramesLabel</name><x>824</x><y>479</y><width>212</width><height>22</height>
+    <text>Frames in rolling sum</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RollingFrames</name><x>1044</x><y>479</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgFramesSummed_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ImageRateLabel</name><x>824</x><y>508</y><width>212</width><height>22</height>
+    <text>Last Image rate (Hz)</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>ImageRate</name><x>1044</x><y>508</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgAcqRate_RBV</pv_name><precision>2</precision>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Clear</name><x>1044</x><y>535</y><width>164</width><height>28</height>
+    <text>Clear sums</text><actions><action type="write_pv"><description>Clear sums</description><pv_name>$(P)$(R)ImgImageDataReset</pv_name><value>1</value></action></actions><background_color><color red="224" green="243" blue="252"/></background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ClearHint</name><x>824</x><y>538</y><width>215</width><height>21</height>
+    <text>Clear preserves the received count.</text><foreground_color><color red="92" green="105" blue="121"/></foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>RollingCard</name><x>810</x><y>576</y><width>412</width><height>244</height>
+    <line_width>1</line_width><line_color><color red="210" green="220" blue="231"/></line_color><background_color><color red="255" green="255" blue="255"/></background_color><transparent>false</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RollingTitle</name><x>824</x><y>586</y><width>190</width><height>24</height>
+    <text>Rolling sum</text><font><font family="Sans" style="BOLD" size="12.0"/></font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>NLabel</name><x>824</x><y>622</y><width>210</width><height>22</height>
+    <text>Requested N</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>FramesToSum</name><x>1044</x><y>618</y><width>164</width><height>26</height>
+    <pv_name>$(P)$(R)ImgFramesToSum</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>EffectiveNLabel</name><x>824</x><y>654</y><width>212</width><height>22</height>
+    <text>Effective capacity</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>EffectiveN</name><x>1044</x><y>654</y><width>164</width><height>24</height>
+    <pv_name>$(P)$(R)ImgEffectiveFrames_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>BudgetLabel</name><x>824</x><y>687</y><width>210</width><height>22</height>
+    <text>Retention budget (MiB)</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>RetentionBudget</name><x>1044</x><y>683</y><width>164</width><height>26</height>
+    <pv_name>$(P)$(R)ImgRetentionLimitMB</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IntervalLabel</name><x>824</x><y>720</y><width>215</width><height>22</height>
+    <text>Publish Last-N every (frames)</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>SumInterval</name><x>1044</x><y>716</y><width>164</width><height>26</height>
+    <pv_name>$(P)$(R)ImgSumUpdateInterval</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RetentionStatus</name><x>824</x><y>752</y><width>384</width><height>24</height>
+    <pv_name>$(P)$(R)ImgRetentionStatus_RBV</pv_name><format>6</format>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RangeStatus</name><x>824</x><y>783</y><width>384</width><height>24</height>
+    <pv_name>$(P)$(R)ImgRangeStatus_RBV</pv_name><format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SourceHint</name><x>20</x><y>836</y><width>1200</width><height>22</height>
+    <text>Source: Image[0], independent of sampled Preview. IntegrationSize=1 gives one detector frame per Image message.</text><foreground_color><color red="92" green="105" blue="121"/></foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UnitsHint</name><x>20</x><y>863</y><width>1200</width><height>22</height>
+    <text>Pixel values follow the selected Image mode (for example ToT); sums are not automatically photon counts.</text><foreground_color><color red="92" green="105" blue="121"/></foreground_color>
+  </widget>
+</display>

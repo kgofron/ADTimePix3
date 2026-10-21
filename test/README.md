@@ -60,6 +60,31 @@ deterministic compositions of the existing 2x2 demo calibration:
 python3 test/generate_tpx3_4x2_demo_calibration.py --check
 ```
 
+## Image display intensity controls
+
+Run the hardware-free Auto / Manual transition, range validation, per-view
+state, scalar feedback, and BOB wiring checks with:
+
+```sh
+python3 test/test_image_intensity.py
+```
+
+The same file runs under Jython 2.7 (`jython test/test_image_intensity.py`).
+Jython additionally exercises the script adapter with real Java array
+statistics and mocked Phoebus scalar PVs. These checks do not render JavaFX;
+verify the slider and color bar in Phoebus after reopening the Image tab.
+
+Check square-pixel image fitting for portrait, landscape and square rasters,
+different axis margins, and invalid dimensions with:
+
+```sh
+python3 test/test_image_geometry.py
+```
+
+These checks do not render JavaFX. Reopen the Image tab in Phoebus to verify
+the native plot margins and view switches on the deployed client. The geometry
+script travels with the BOB file and intensity script; no IOC restart is needed.
+
 ## Live IOC PixelConfig validation
 
 After configuring Channel Access for the target IOC, validate all detected
