@@ -334,6 +334,7 @@
 #define ADTimePixPrvHstBinWidthString           "TPX3_PRV_HSTBINWIDTH"      // (asynFloat64,       w)      Preview HistogramChannels BinWidth
 #define ADTimePixPrvHstOffsetString             "TPX3_PRV_HSTOFFSET"        // (asynFloat64,       w)      Preview HistogramChannels Offset
 #define ADTimePixPrvHstFilePathExistsString     "PRV_HST_FILE_PATH_EXISTS"  // (asynInt32,       r/w)      File path exists? */
+#define ADTimePixPrvHstDestinationString        "TPX3_PRV_HST_DESTINATION"  // Applied channel JSON from GET /server/destination
     // PrvHst histogram data arrays (similar to Img channel)
 #define ADTimePixPrvHstHistogramFrameString     "TPX3_PRV_HST_HISTOGRAM_FRAME"       // (asynInt32Array,    r)      Current frame histogram data
 #define ADTimePixPrvHstHistogramDataString      "TPX3_PRV_HST_HISTOGRAM_DATA"        // (asynInt64Array,    r)      Accumulated histogram data
@@ -732,7 +733,8 @@ class ADTimePix : public ADDriver{
         int ADTimePixPrvImg1QueueSize;  
         int ADTimePixPrvImg1FilePathExists;
             // Server, Preview, HistogramChannels[0]
-        int ADTimePixPrvHstBase;           
+        int ADTimePixPrvHstBase;
+        int ADTimePixPrvHstDestination;
         int ADTimePixPrvHstFilePat;        
         int ADTimePixPrvHstFormat;         
         int ADTimePixPrvHstMode;           

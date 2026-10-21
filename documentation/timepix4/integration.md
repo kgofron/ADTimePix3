@@ -71,13 +71,193 @@ wget --quiet --timeout=20 --tries=2 \
 Keep full generated API and detector snapshots as local evidence. Commit only
 small derived fixtures and facts needed for deterministic tests.
 
-## Preview destination control
+## Destination control
 
 The TPX4 status panel opens `Acquire/Tpx4ServerFileWriter.bob`. This restricted
-screen can edit and reapply the single preview destination without exposing
-unqualified TPX3/MPX3 channels. After changing a preview field, use **Apply
+screen can edit and reapply Preview 0 and experimental Image 0 without exposing
+unqualified secondary or raw channels. After changing a field, use **Apply
 Destination** to send the complete destination to Serval and refresh the
 readbacks.
+
+### Histogram destination compatibility
+
+Open **Histogram destination** from Destinations. The separate
+`Acquire/Tpx4HistogramDestination.bob` screen preserves the main screen's size
+and displays Base, file pattern, format, mode, bin count, bin width, offset,
+integration, queue size and disk-limit settings in the same style as Image.
+Settings and Apply are read-only because the tested Serval 4.1.6-EXPERIMENTAL
+and 4.3.0-EXPERIMENTAL TPX4 paths fail at histogram acquisition start. The driver rejects histogram
+enable before a destination PUT, so it cannot replace working Image/Preview
+outputs with a configuration known to fail. `CapTofHist_RBV` remains false.
+
+Requested settings are distinct from `PrvHstDestination_RBV`, which contains
+the first histogram channel actually returned by `GET /server/destination`,
+or `{}` when absent. The Applied indicator means that a destination exists;
+it does not establish that acquisition can start. Preview image and histogram
+channels share the Preview period and sampling mode.
+
+The TPX4 profile starts with `WritePrvHst=0` and
+`PrvHstAccumulationEnable=0`, including after autosave restoration. Unapplied
+candidate defaults are TCP listen on localhost:8085, `jsonhisto` (existing enum
+value 4), `tof`, 1000 bins, bin width `0.000001`, offset 0, integration 1 and
+queue size 160. No enum values are renumbered. The screen does not label bin
+width/offset in ms or apply the TPX3 clock constant. The TPX4 acquisition path
+also excludes the legacy TPX3 histogram receiver.
+
+#### Emulator qualification, 2026-10-21
+
+The tested pair was TPX4 emulator **4.3.0** and Serval
+**4.1.6-EXPERIMENTAL, build 1760**. The emulator was launched with
+`-DhitRate=1 -Dtdc=0`; simulated TDC generation was disabled. These results do
+not establish the behavior of Serval 4.3. Disabled TDC generation also means
+that a meaningful ToF test would need a qualified reference source; it does
+not explain away the destination validation errors or startup exception below.
+
+The running OpenAPI schema advertises `Preview.HistogramChannels[]`, mode
+`tof`, preferred format `histogram`, and TPX4 `/detector/tdc` controls. It
+calls `jsonhisto` deprecated and still labels `MeasurementTOFConfig` as TPX3.
+Short, explicitly authorized tests on the TPX4 emulator found:
+
+| Request | Result |
+|---|---|
+| Histogram destination, `Format=histogram` | PUT 400: `Format may not be histogram for a histogram channel. Supported formats: 'jsonhisto'.` |
+| `jsonhisto` / `tof`, HTTP base | PUT 400: `Unsupported format 'jsonhisto' for scheme http. Supported formats: 'tiff', 'pgm', 'png'.` |
+| `jsonhisto` / `tof`, TCP connect base | PUT 200; GET readback confirms the requested histogram settings |
+| Start measurement with that accepted TCP destination | GET 500: `Histopars can only be defined for TPX.` |
+| `jsonhisto` / `count`, TCP base | PUT 400: `Mode 'count' is currently not supported for histograms. Supported: 'tof'.` |
+
+The bounded startup test requested three triggers, with continuous exposure
+and trigger period both 0.1 s. Serval requires those periods to be equal in
+Continuous mode. No histogram frame was produced. The probe stopped the
+attempted measurement and restored the original detector configuration and
+complete destination configuration; subsequent GETs matched both originals.
+The original timing was 1000 triggers with exposure/period both 0.2 s.
+TDC and measurement-processing settings were read but not changed. Full raw
+responses remain local evidence; only these derived facts belong in Git.
+
+The supplied server log and saved HTTP responses establish this sequence
+(local log times):
+
+- At 17:16:53, histogram start returned HTTP 500 with an
+  `IllegalStateException` in `DataMeasurement.createChannels`. Stop and both
+  configuration restorations then returned HTTP 200, and GET readbacks matched
+  the saved detector and destination configurations.
+- At 17:18:27, the same server handled the `count` destination request and
+  returned HTTP 400. Its restorations also completed and matched the snapshots.
+- At 17:23:24, `tpx3servalDriver:stopProcess` logged SIGTERM and then SIGKILL;
+  `startProcess` launched Serval again. The log does not identify the restart
+  trigger or establish a spontaneous JVM crash.
+
+A read-only check after that restart found Serval responding, but dashboard
+`Measurement` and measurement `Info` were null, and `GET /server/destination`
+returned HTTP 409, `Destination is not set.` This is a later server state,
+distinct from the verified restoration before the restart. No configuration
+was reapplied during that check. Successful image acquisition after the failed
+histogram start was not tested in that initial sequence.
+
+After the operator restarted the emulator, Serval and IOC and confirmed normal
+Preview acquisition, the histogram test was repeated at 17:34:06. The fresh
+baseline was Continuous mode, 1000 triggers and exposure/period both 0.02 s,
+with the configured Preview 0 `jsonimage` destination. The same TCP
+`jsonhisto` / `tof` destination was accepted, and the three-trigger start again
+returned HTTP 500, `Histopars can only be defined for TPX.` Detector and
+destination settings were restored and verified by GET readbacks.
+
+A subsequent Preview recovery test used the saved Preview settings with only
+its Base changed to a temporary local TCP connect receiver. It requested at
+most 20 triggers with exposure/period both 0.1 s, started successfully, and
+received one complete, nonzero 448×512 `jsonimage` frame: `bitDepth=16`,
+`dataSize=458752`. The test stopped after receiving that frame, restored the
+original detector configuration and complete destination, and verified exact
+equality for those plus the unchanged measurement-processing and TDC settings.
+The final dashboard status was `DA_IDLE`. This establishes raw Preview delivery
+after the histogram startup failure; IOC/PVA delivery was not tested because
+Channel Access queries from the test session timed out. No histogram payload,
+bin timing or event accounting was validated.
+
+The operator subsequently confirmed that the IOC could acquire after the
+retest. The supplied screen showed Connected, Idle and 90 server images
+complete, while areaDetector Images Acquired remained 0. This adds operator
+confirmation of IOC acquisition recovery; it does not independently establish
+image callbacks or PVA display delivery.
+
+A Serval build that successfully starts TPX4 histogram acquisition is needed
+before enabling this channel. Then capture the supported wire format, payload,
+matching TDC/reference, bin units, event accounting and bin centers from one
+run. That evidence is required before implementing the receiver and a ToF
+plot. The planned plot can offer latest, Last-N and accumulated views with
+linear/log axes and retained results after Stop, following the Image screen.
+
+#### Serval 4.3 qualification, 2026-10-21
+
+The operator next upgraded to Serval **4.3.0-EXPERIMENTAL, build 1966** with
+the 4.3.0 emulator. The IOC rejected Preview with `invalid or missing frame
+payload terminator`; Serval then logged a broken pipe after the receiver
+disconnected. This was a framing incompatibility, not evidence that the
+detector acquisition pipeline stopped processing frames.
+
+Bounded captures of Preview and full Image each returned a nonzero 448×512
+ToT raster with `bitDepth=16`, `dataSize=458752` and `bigEndian=true`. Serval
+4.3 pads its JSON header with spaces before the closing brace, then LF, to an
+eight-byte boundary. After the declared binary payload it writes
+`7 - (dataSize % 8)` spaces, followed by LF. Both captured rasters therefore
+had trailer bytes `20 20 20 20 20 20 20 0a`. The payload size excludes padding.
+Inspection of the installed writer confirmed this alignment rule; Serval
+4.1.6 instead writes LF immediately after the payload.
+
+The shared Preview/Image decoder now accepts either the legacy LF or exactly
+the aligned space padding plus LF after the declared payload. It never scans
+binary pixels for delimiters, still enforces metadata and buffer limits, and
+rejects malformed or excessive padding. The histogram framer retains its
+strict LF policy. Preview and Image decoding honor boolean `bigEndian`
+metadata and default to big endian when absent, preserving legacy behavior.
+
+All 384 protocol fixture tests passed, including every TCP split and bytewise
+delivery across mixed legacy/aligned messages, all eight payload alignments,
+malformed/truncated padding, and native-value decoding for both byte orders.
+Captured Preview and Image payloads were replayed through the production
+framer/decoder in 137-byte chunks, using their padded headers/trailers and two
+successive frames. Decoded pixel sums and maxima matched an independent
+Python reference. Driver and IOC builds passed. After restarting the IOC,
+the operator confirmed Preview display with Serval 4.3 and supplied a screen
+showing the received image and 83 server images complete. This confirms the
+live Preview display path with the rebuilt decoder. The shared Images Acquired
+counter was still 0 in that screen, so it is not a reliable indicator of
+Preview display delivery in this setup.
+
+The operator subsequently enabled Image 0 alongside Preview and confirmed
+display in all three Image monitor views: latest frame, Last-N sum and
+accumulated sum. Both destinations used TCP listen `jsonimage` / `tot` with
+integration size 1. The supplied Image screen showed 448×512 geometry, 99
+received and accumulated messages, a rolling occupancy of 10 and a last-message
+rate of 52.08 Hz. These observations establish functional display of both
+channels with Serval 4.3; they do not qualify sustained throughput, packet-level
+completeness or retained results after Stop. Connection-close messages in the
+supplied log do not alone identify an error or establish the acquisition state
+at each close.
+
+A separate three-trigger TPX4 histogram test against Serval 4.3 again accepted
+TCP `jsonhisto` / `tof` but rejected measurement start with HTTP 500,
+`Histopars can only be defined for TPX.` The captured 4.3 OpenAPI schema still
+labels `MeasurementTOFConfig` as TPX3. Histogram output remains blocked.
+Each live probe restored the detector configuration and original Preview
+destination and verified their GET readbacks. Image capture after the failed
+histogram attempt succeeded; its final check also verified unchanged
+measurement-processing/TDC settings and `DA_IDLE`.
+
+#### Remaining upgrade qualification
+
+For subsequent upgrades, record both emulator and Serval versions and capture
+the new OpenAPI schema.
+For Preview and full Image separately, capture `jsonimage` headers and payloads
+and verify framing, payload length, numeric types, byte order, dimensions and
+orientation against the decoder. Recheck destinations, acquisition start/stop,
+and retained image results rather than assuming compatibility from the format
+name. For histograms, qualify the accepted format and transport, successful
+startup, payload decoding, matching TDC/reference generation, bin units and
+centers, and event accounting. Include a normal image acquisition after any
+failed histogram attempt to verify recovery. Keep the TPX4 histogram capability
+disabled until these checks establish a working path.
 
 ## Image monitor
 

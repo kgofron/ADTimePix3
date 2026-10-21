@@ -1,0 +1,629 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Tpx4HistogramDestination</name>
+  <width>980</width>
+  <height>889</height>
+  <background_color>
+    <color red="242" green="245" blue="249" />
+  </background_color>
+  <widget type="rectangle" version="2.0.0">
+    <name>Header</name>
+    <x>0</x>
+    <y>0</y>
+    <width>980</width>
+    <height>64</height>
+    <line_width>0</line_width>
+    <transparent>false</transparent>
+    <background_color>
+      <color red="31" green="50" blue="73" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>8</y>
+    <width>850</width>
+    <height>27</height>
+    <text>Timepix4  /  Histogram destination</text>
+    <font>
+      <font family="Sans" style="BOLD" size="17.0" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Subtitle</name>
+    <x>21</x>
+    <y>36</y>
+    <width>850</width>
+    <height>19</height>
+    <text>$(P)$(R)  •  TPX4 histogram compatibility and requested settings</text>
+    <foreground_color>
+      <color red="210" green="225" blue="241" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>SummaryCard</name>
+    <x>18</x>
+    <y>76</y>
+    <width>944</width>
+    <height>76</height>
+    <line_width>1</line_width>
+    <transparent>false</transparent>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>EnableLabel</name>
+    <x>34</x>
+    <y>90</y>
+    <width>145</width>
+    <height>22</height>
+    <text>Histogram channel</text>
+    <font>
+      <font family="Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>WriteHistogram</name>
+    <x>186</x>
+    <y>88</y>
+    <width>84</width>
+    <height>27</height>
+    <pv_name>$(P)$(R)WritePrvHst</pv_name>
+    <bit>-1</bit>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>HistogramApplied</name>
+    <x>286</x>
+    <y>91</y>
+    <width>20</width>
+    <height>20</height>
+    <pv_name>$(P)$(R)WritePrvHst_RBV</pv_name>
+    <on_color>
+      <color red="47" green="177" blue="118" />
+    </on_color>
+    <off_color>
+      <color red="153" green="163" blue="175" />
+    </off_color>
+    <tooltip>Channel exists in Serval destination readback; this does not establish TPX4 acquisition support</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AppliedLabel</name>
+    <x>312</x>
+    <y>91</y>
+    <width>80</width>
+    <height>22</height>
+    <text>Applied</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Destinations</name>
+    <x>512</x>
+    <y>88</y>
+    <width>140</width>
+    <height>28</height>
+    <text>Destinations</text>
+    <actions>
+      <action type="open_display">
+        <description>Destinations</description>
+        <file>Tpx4ServerFileWriter.bob</file>
+        <target>tab</target>
+      </action>
+    </actions>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Apply</name>
+    <x>730</x>
+    <y>88</y>
+    <width>214</width>
+    <height>28</height>
+    <text>Apply all destinations</text>
+    <actions>
+      <action type="write_pv">
+        <description>Apply all destinations</description>
+        <pv_name>$(P)$(R)WriteData</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <tooltip>Apply every enabled output channel, including Preview and Image, then read back Serval state</tooltip>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ApplyHint</name>
+    <x>34</x>
+    <y>122</y>
+    <width>910</width>
+    <height>20</height>
+    <text>Unavailable with tested Serval 4.1.6 / 4.3 TPX4: histogram acquisition fails at start.</text>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>SettingsCard</name>
+    <x>18</x>
+    <y>166</y>
+    <width>626</width>
+    <height>465</height>
+    <line_width>1</line_width>
+    <transparent>false</transparent>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SettingsTitle</name>
+    <x>34</x>
+    <y>179</y>
+    <width>580</width>
+    <height>24</height>
+    <text>Histogram settings  /  Awaiting server support</text>
+    <font>
+      <font family="Sans" style="BOLD" size="14.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>BaseLabel</name>
+    <x>34</x>
+    <y>218</y>
+    <width>90</width>
+    <height>22</height>
+    <text>Base</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Base</name>
+    <x>126</x>
+    <y>215</y>
+    <width>488</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstFilePath</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <format>6</format>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PatternLabel</name>
+    <x>34</x>
+    <y>258</y>
+    <width>90</width>
+    <height>22</height>
+    <text>File pattern</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Pattern</name>
+    <x>126</x>
+    <y>255</y>
+    <width>488</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstFileTemplate</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <format>6</format>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FormatLabel</name>
+    <x>34</x>
+    <y>306</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Format</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Format</name>
+    <x>146</x>
+    <y>303</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstFileFmt</pv_name>
+    <tooltip>Tested Serval 4.1.6 / 4.3 accept jsonhisto over TCP; TPX4 histogram acquisition start still fails</tooltip>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ModeLabel</name>
+    <x>338</x>
+    <y>306</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Mode</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Mode</name>
+    <x>450</x>
+    <y>303</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstFileMode</pv_name>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>BinsLabel</name>
+    <x>34</x>
+    <y>350</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Number of bins</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Bins</name>
+    <x>146</x>
+    <y>347</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstNumBins</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>QueueLabel</name>
+    <x>338</x>
+    <y>350</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Queue size</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Queue</name>
+    <x>450</x>
+    <y>347</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstQueueSize</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>BinWidthLabel</name>
+    <x>34</x>
+    <y>394</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Bin width</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>BinWidth</name>
+    <x>146</x>
+    <y>391</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstBinWidth</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <precision>9</precision>
+    <show_units>false</show_units>
+    <tooltip>Value passed directly to the Serval API; TPX4 time units remain to be verified</tooltip>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>OffsetLabel</name>
+    <x>338</x>
+    <y>394</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Offset</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Offset</name>
+    <x>450</x>
+    <y>391</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstOffset</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <precision>9</precision>
+    <show_units>false</show_units>
+    <tooltip>Value passed directly to the Serval API; TPX4 time units remain to be verified</tooltip>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IntegrationLabel</name>
+    <x>34</x>
+    <y>438</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Integration</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Integration</name>
+    <x>146</x>
+    <y>435</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstIntgSize</pv_name>
+    <background_color>
+      <color red="224" green="243" blue="252" />
+    </background_color>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>IntegrationModeLabel</name>
+    <x>338</x>
+    <y>438</y>
+    <width>110</width>
+    <height>22</height>
+    <text>Mode</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>IntegrationMode</name>
+    <x>450</x>
+    <y>435</y>
+    <width>164</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)PrvHstIntgMode</pv_name>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>DiskLabel</name>
+    <x>34</x>
+    <y>482</y>
+    <width>160</width>
+    <height>22</height>
+    <text>Stop on disk limit</text>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>StopOnDiskLimit</name>
+    <x>212</x>
+    <y>479</y>
+    <width>100</width>
+    <height>27</height>
+    <pv_name>$(P)$(R)PrvHstStpOnDskLim</pv_name>
+    <bit>-1</bit>
+    <enabled>false</enabled>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>UnitHint</name>
+    <x>34</x>
+    <y>529</y>
+    <width>580</width>
+    <height>58</height>
+    <text>Bin width and offset use Serval API values. TPX4 timing has not been verified; no TPX3 clock conversion is applied here.</text>
+    <wrap_words>true</wrap_words>
+    <foreground_color>
+      <color red="130" green="80" blue="32" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>FileHint</name>
+    <x>34</x>
+    <y>595</y>
+    <width>580</width>
+    <height>22</height>
+    <text>File pattern and disk-limit behavior apply to file destinations.</text>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>CompatibilityCard</name>
+    <x>656</x>
+    <y>166</y>
+    <width>306</width>
+    <height>465</height>
+    <line_width>1</line_width>
+    <transparent>false</transparent>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CompatibilityTitle</name>
+    <x>672</x>
+    <y>179</y>
+    <width>270</width>
+    <height>24</height>
+    <text>Compatibility and delivery</text>
+    <font>
+      <font family="Sans" style="BOLD" size="14.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>CompatibilityHint</name>
+    <x>672</x>
+    <y>218</y>
+    <width>270</width>
+    <height>90</height>
+    <text>Serval 4.1.6 / 4.3 accept TCP jsonhisto with tof, then reject acquisition start: "Histopars can only be defined for TPX."</text>
+    <wrap_words>true</wrap_words>
+    <foreground_color>
+      <color red="130" green="80" blue="32" />
+    </foreground_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ReceiverLabel</name>
+    <x>672</x>
+    <y>323</y>
+    <width>180</width>
+    <height>22</height>
+    <text>Legacy IOC receiver</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Receiver</name>
+    <x>858</x>
+    <y>321</y>
+    <width>84</width>
+    <height>24</height>
+    <pv_name>$(P)$(R)PrvHstAccumulationEnable_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ReceiverHint</name>
+    <x>672</x>
+    <y>359</y>
+    <width>270</width>
+    <height>80</height>
+    <text>Histogram output is blocked before Apply reaches Serval. The legacy IOC receiver stays disabled; no TPX3 timing conversion is used.</text>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SamplingTitle</name>
+    <x>672</x>
+    <y>459</y>
+    <width>270</width>
+    <height>22</height>
+    <text>Shared Preview sampling</text>
+    <font>
+      <font family="Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PeriodLabel</name>
+    <x>672</x>
+    <y>493</y>
+    <width>145</width>
+    <height>22</height>
+    <text>Period (s)</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Period</name>
+    <x>824</x>
+    <y>491</y>
+    <width>118</width>
+    <height>24</height>
+    <pv_name>$(P)$(R)PrvPeriod_RBV</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SamplingLabel</name>
+    <x>672</x>
+    <y>529</y>
+    <width>145</width>
+    <height>22</height>
+    <text>Sampling</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Sampling</name>
+    <x>824</x>
+    <y>527</y>
+    <width>118</width>
+    <height>24</height>
+    <pv_name>$(P)$(R)PrvSmplgMode_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>SamplingHint</name>
+    <x>672</x>
+    <y>571</y>
+    <width>270</width>
+    <height>49</height>
+    <text>Preview image and histogram share these settings. Edit them on Destinations.</text>
+    <wrap_words>true</wrap_words>
+    <foreground_color>
+      <color red="92" green="105" blue="121" />
+    </foreground_color>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>AppliedCard</name>
+    <x>18</x>
+    <y>643</y>
+    <width>944</width>
+    <height>126</height>
+    <line_width>1</line_width>
+    <transparent>false</transparent>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>AppliedTitle</name>
+    <x>34</x>
+    <y>654</y>
+    <width>910</width>
+    <height>24</height>
+    <text>Applied histogram channel  /  Serval readback</text>
+    <font>
+      <font family="Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>AppliedConfiguration</name>
+    <x>34</x>
+    <y>686</y>
+    <width>910</width>
+    <height>65</height>
+    <pv_name>$(P)$(R)PrvHstDestination_RBV</pv_name>
+    <format>6</format>
+    <wrap_words>true</wrap_words>
+    <tooltip>Actual channel returned by GET /server/destination. {} means no histogram output is configured. Settings above are requested values.</tooltip>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>ResponseCard</name>
+    <x>18</x>
+    <y>781</y>
+    <width>944</width>
+    <height>90</height>
+    <line_width>1</line_width>
+    <transparent>false</transparent>
+    <line_color>
+      <color red="210" green="220" blue="231" />
+    </line_color>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ResponseTitle</name>
+    <x>34</x>
+    <y>792</y>
+    <width>400</width>
+    <height>22</height>
+    <text>Destination response</text>
+    <font>
+      <font family="Sans" style="BOLD" size="12.0" />
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>HttpLabel</name>
+    <x>795</x>
+    <y>792</y>
+    <width>55</width>
+    <height>22</height>
+    <text>HTTP</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Http</name>
+    <x>852</x>
+    <y>790</y>
+    <width>92</width>
+    <height>24</height>
+    <pv_name>$(P)$(R)HttpCode_RBV</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Response</name>
+    <x>34</x>
+    <y>823</y>
+    <width>910</width>
+    <height>32</height>
+    <pv_name>$(P)$(R)WriteFileMessage</pv_name>
+    <format>6</format>
+  </widget>
+</display>

@@ -3,8 +3,9 @@
 #
 # The qualified minimum is one Preview.ImageChannels[0] jsonimage stream on
 # TCP 8089. Image[0] is configured locally for experimental validation but
-# remains disabled at startup. Secondary channels, raw and histogram remain
-# blocked by the TPX4 destination guard.
+# remains disabled at startup. Histogram output and its legacy receiver stay
+# disabled: tested Serval 4.1.6 / 4.3.0 reject TPX4 histogram start. Secondary
+# channels, raw and histogram remain blocked by the TPX4 destination guard.
 
 # Clear all unqualified destination flags, including values restored by
 # autosave, before the TPX4 destination is applied.
@@ -13,6 +14,18 @@ dbpf("$(PREFIX)cam1:WriteRaw1", "0")
 dbpf("$(PREFIX)cam1:WriteImg1", "0")
 dbpf("$(PREFIX)cam1:WritePrvImg1", "0")
 dbpf("$(PREFIX)cam1:WritePrvHst", "0")
+dbpf("$(PREFIX)cam1:PrvHstAccumulationEnable", "0")
+dbpf("$(PREFIX)cam1:PrvHstFilePath", "tcp://listen@localhost:8085")
+dbpf("$(PREFIX)cam1:PrvHstFileTemplate", "h%MdHms_")
+dbpf("$(PREFIX)cam1:PrvHstFileFmt", "4")
+dbpf("$(PREFIX)cam1:PrvHstFileMode", "3")
+dbpf("$(PREFIX)cam1:PrvHstNumBins", "1000")
+dbpf("$(PREFIX)cam1:PrvHstBinWidth", "0.000001")
+dbpf("$(PREFIX)cam1:PrvHstOffset", "0")
+dbpf("$(PREFIX)cam1:PrvHstIntgSize", "1")
+dbpf("$(PREFIX)cam1:PrvHstIntgMode", "0")
+dbpf("$(PREFIX)cam1:PrvHstQueueSize", "160")
+dbpf("$(PREFIX)cam1:PrvHstStpOnDskLim", "0")
 
 dbpf("$(PREFIX)cam1:ImgFilePath", "tcp://listen@localhost:8087")
 dbpf("$(PREFIX)cam1:ImgFileTemplate", "f%MdHms_")

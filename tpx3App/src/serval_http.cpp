@@ -1679,6 +1679,7 @@ asynStatus ADTimePix::getServer(){
                     snapshot.previewImageChannels >= 2 ? 1 : 0);
     setIntegerParam(ADTimePixWritePrvHstRead,
                     snapshot.previewHistogramChannels >= 1 ? 1 : 0);
+    setStringParam(ADTimePixPrvHstDestination, snapshot.histogramDestination.c_str());
     callParamCallbacks();
 
     return asynSuccess;
@@ -2203,7 +2204,7 @@ asynStatus ADTimePix::configureHistogramChannel(json& server_j) {
     
     if (getParameterSafely(ADTimePixPrvHstOffset, doubleNum) != asynSuccess) return asynError;
     server_j["Preview"]["HistogramChannels"][0]["Offset"] = doubleNum;
-    
+
     return asynSuccess;
 }
 
@@ -2374,7 +2375,7 @@ asynStatus ADTimePix::sendMeasurementConfig() {
 asynStatus ADTimePix::fileWriter(){
     FLOW("Configuring file writer channels");
 
-    /* TPX4 currently permits preview image 0 and experimental full image 0.
+    /* TPX4 permits preview image 0 and experimental full image 0.
      * Reject stale or manually enabled TPX3-only channel flags before a
      * destination PUT, including during acquisition startup. */
     if (detectorFamily_ == DetectorFamily::TPX4) {
@@ -2384,7 +2385,6 @@ asynStatus ADTimePix::fileWriter(){
             {ADTimePixWriteRaw1, "Raw[1]"},
             {ADTimePixWriteImg1, "Image[1]"},
             {ADTimePixWritePrvImg1, "Preview.ImageChannels[1]"},
-            {ADTimePixWritePrvHst, "Preview.HistogramChannels[0]"},
         };
         for (const auto& channel : unsupported) {
             int enabled = 0;
@@ -2402,8 +2402,20 @@ asynStatus ADTimePix::fileWriter(){
         }
         int previewEnabled = 0;
         int imageEnabled = 0;
+        int histogramEnabled = 0;
         if (getParameterSafely(ADTimePixWritePrvImg, previewEnabled) != asynSuccess ||
-            getParameterSafely(ADTimePixWriteImg, imageEnabled) != asynSuccess) {
+            getParameterSafely(ADTimePixWriteImg, imageEnabled) != asynSuccess ||
+            getParameterSafely(ADTimePixWritePrvHst, histogramEnabled) != asynSuccess) {
+            return asynError;
+        }
+        if (histogramEnabled != 0) {
+            // Tested Serval 4.1.6 and 4.3.0 accept TPX4 TCP jsonhisto, then
+            // fails /measurement/start with "Histopars can only be defined for TPX".
+            // Reject before PUT so an attempted enable cannot break Image/Preview.
+            const char* message = "TPX4 histogram unavailable: tested Serval 4.1.6 / 4.3.0 reject histogram start";
+            setStringParam(ADTimePixWriteMsg, message);
+            callParamCallbacks();
+            ERR_ARGS("%s", message);
             return asynError;
         }
         if (previewEnabled == 0 && imageEnabled == 0) {

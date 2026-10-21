@@ -56,7 +56,7 @@
     <actions><action type="write_pv"><description>Apply TPX4 destinations</description><pv_name>$(P)$(R)WriteData</pv_name><value>1</value></action></actions>
     <text>Apply destination</text><x>770</x><y>88</y><width>174</width><height>29</height>
     <background_color><color red="115" green="205" blue="238"/></background_color>
-    <tooltip>Push the enabled Preview 0 and Image 0 channels to Serval, then refresh readbacks</tooltip>
+    <tooltip>Push enabled Preview 0 and Image 0 channels to Serval, then refresh readbacks. TPX4 histogram output remains blocked.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ApplyHint</name><text>Changes take effect when you apply the destination.</text>
@@ -121,7 +121,8 @@
   <widget type="label" version="2.0.0"><name>DiskLimitLabel</name><text>Stop on disk limit</text><x>672</x><y>319</y><width>160</width><height>22</height></widget>
   <widget type="bool_button" version="2.0.0"><name>DiskLimit</name><pv_name>$(P)$(R)PrvStpOnDskLim</pv_name><bit>-1</bit><x>836</x><y>315</y><width>84</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Applies to file destinations</tooltip></widget>
   <widget type="label" version="2.0.0"><name>ScopeTitle</name><text>Current TPX4 scope</text><x>672</x><y>372</y><width>270</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
-  <widget type="label" version="2.0.0"><name>ScopeBody</name><text>Preview 0 is the established path. Image 0 is available for validation and is off at startup. Raw, second channels and histogram remain blocked.</text><x>672</x><y>400</y><width>270</width><height>88</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+  <widget type="label" version="2.0.0"><name>ScopeBody</name><text>Image 0 is experimental. Histogram is unavailable in tested Serval 4.1.6 / 4.3. Raw and second channels remain blocked.</text><x>672</x><y>400</y><width>270</width><height>60</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+  <widget type="action_button" version="3.0.0"><name>HistogramDestination</name><text>Histogram destination</text><x>672</x><y>475</y><width>270</width><height>28</height><actions><action type="open_display"><description>Timepix4 Histogram destination</description><file>Tpx4HistogramDestination.bob</file><target>tab</target></action></actions></widget>
 
   <widget type="rectangle" version="2.0.0">
     <name>ImageCard</name><x>18</x><y>532</y><width>626</width><height>355</height>
@@ -156,7 +157,7 @@
   <widget type="label" version="2.0.0"><name>ImageIntegrationModeLabel</name><text>Integration mode</text><x>34</x><y>800</y><width>125</width><height>20</height></widget>
   <widget type="combo" version="2.0.0"><name>ImageIntegrationMode</name><pv_name>$(P)$(R)ImgIntgMode</pv_name><x>163</x><y>796</y><width>112</width><height>24</height><background_color><color red="224" green="243" blue="252"/></background_color></widget>
   <widget type="textupdate" version="2.0.0"><name>ImageIntegrationModeReadback</name><pv_name>$(P)$(R)ImgIntgMode_RBV</pv_name><x>280</x><y>797</y><width>100</width><height>22</height><format>6</format></widget>
-  <widget type="label" version="2.0.0"><name>ImageHint</name><text>Use Image 0 with Serval 4.1.6 for validation; Serval 4.3 TCP framing needs investigation.</text><x>34</x><y>842</y><width>580</width><height>30</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+  <widget type="label" version="2.0.0"><name>ImageHint</name><text>Image 0 supports legacy and Serval 4.3 aligned jsonimage framing. Full-rate performance remains experimental.</text><x>34</x><y>842</y><width>580</width><height>30</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
 
   <widget type="rectangle" version="2.0.0">
     <name>ImageStatusCard</name><x>656</x><y>532</y><width>306</width><height>355</height>

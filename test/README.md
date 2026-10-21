@@ -25,9 +25,14 @@ bytes, short payloads, invalid and oversized headers, valid and invalid payload
 terminators, bounded retained bytes, clean and truncated EOF, and
 reconnect-buffer reset. The framer consumes one JSON header, exactly its
 declared binary payload, and Serval's trailing newline while retaining only
-bytes belonging to later messages. Image fixtures also verify Serval `bitDepth` /
+bytes belonging to later messages. Image streams additionally accept Serval
+4.3's exact space padding before the newline to align payload plus trailer to
+eight bytes; histogram framing stays strict. Tests cover mixed legacy/aligned
+messages at every split, bytewise trailers, all payload alignments and invalid
+or truncated padding. Image fixtures also verify Serval `bitDepth` /
 `dataSize` sizing for 8-, 16-, and 32-bit rasters, including MPX3 integrated
-preview frames.
+preview frames, and native-value decoding with both boolean `bigEndian`
+settings (defaulting to big endian for legacy headers).
 
 Worker-lifecycle coverage exercises the production atomic state protocol and
 `NetworkClient` interruption path. Tests cover duplicate starts, stop and
@@ -84,6 +89,15 @@ python3 test/test_image_geometry.py
 These checks do not render JavaFX. Reopen the Image tab in Phoebus to verify
 the native plot margins and view switches on the deployed client. The geometry
 script travels with the BOB file and intensity script; no IOC restart is needed.
+
+## TPX4 histogram destination validation
+
+The C++ fixture suite also checks that histogram destination readback preserves
+Serval's actual applied channel, including its numeric settings, and rejects a
+non-object channel before publication. These checks do not validate a TPX4
+histogram payload or its time units. See `documentation/timepix4/integration.md`
+for the emulator test results: the tested server accepts a TCP destination but
+rejects acquisition start. The TPX4 channel and receiver remain blocked.
 
 ## Live IOC PixelConfig validation
 

@@ -1825,6 +1825,16 @@ record(longin, "$(P)$(R)PrvHstQueueSize_RBV")
    field(SCAN, "I/O Intr")
 }
 
+record(waveform, "$(P)$(R)PrvHstDestination_RBV")
+{
+    field(DESC, "Applied histogram destination JSON")
+    field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))TPX3_PRV_HST_DESTINATION")
+    field(FTVL, "CHAR")
+    field(NELM, "4096")
+    field(SCAN, "I/O Intr")
+}
+
 record(longout, "$(P)$(R)PrvHstNumBins")
 {
    field(PINI, "YES")

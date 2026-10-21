@@ -678,6 +678,138 @@ void testConsumeOnceStreamFraming()
            "consume-once framing discards a partial old connection before reconnect data");
 }
 
+void testAlignedImageFraming()
+{
+    using namespace ADTimePix3Stream;
+    const auto resolver = [](const std::string& header, std::size_t& size, std::string&) {
+        size = nlohmann::json::parse(header).at("payloadBytes").get<std::size_t>();
+        return true;
+    };
+    const auto alignedWire = [](const std::string& payload) {
+        std::string header = nlohmann::json{{"payloadBytes", payload.size()}}.dump();
+        header.insert(header.size() - 1, 7 - header.size() % 8, ' ');
+        return header + "\n" + payload + std::string(7 - payload.size() % 8, ' ') + "\n";
+    };
+    const std::string payload("\n{\0\xff }\n ", 8);
+    const std::string padded = alignedWire(payload);
+    const std::string legacy = "{\"payloadBytes\":8}\n" + payload + "\n";
+    const std::string wire = padded + legacy + padded;
+    const auto drain = [&resolver, &payload](FrameBuffer& buffer, unsigned& count) {
+        while (true) {
+            FramedMessage frame;
+            std::string error;
+            const auto result = buffer.next(resolver, frame, error);
+            if (result == FrameResult::NeedMoreData) return true;
+            if (result != FrameResult::FrameReady ||
+                std::string(frame.payload.begin(), frame.payload.end()) != payload) return false;
+            ++count;
+        }
+    };
+    bool splitOk = true;
+    for (std::size_t split = 0; split <= wire.size(); ++split) {
+        FrameBuffer buffer(128, 16, 256, PayloadTrailer::NewlineOrAlignedSpaces);
+        unsigned count = 0;
+        splitOk = splitOk && buffer.append(wire.data(), split) == FrameResult::NeedMoreData &&
+            drain(buffer, count) &&
+            buffer.append(wire.data() + split, wire.size() - split) == FrameResult::NeedMoreData &&
+            drain(buffer, count) && count == 3 && buffer.bufferedBytes() == 0;
+    }
+    testOk(splitOk, "image framing accepts mixed 4.3 aligned and legacy messages at every TCP split");
+    FrameBuffer bytewise(128, 16, 128, PayloadTrailer::NewlineOrAlignedSpaces);
+    unsigned count = 0;
+    bool bytewiseOk = true;
+    for (char byte : wire) {
+        bytewiseOk = bytewiseOk && bytewise.append(&byte, 1) == FrameResult::NeedMoreData &&
+            drain(bytewise, count);
+    }
+    testOk(bytewiseOk && count == 3 && bytewise.bufferedBytes() == 0,
+           "aligned image trailers tolerate bytewise delivery without changing binary pixels");
+    bool lengthsOk = true;
+    for (std::size_t length = 0; length < 16; ++length) {
+        const std::string pixels(length, '\n');
+        const std::string message = alignedWire(pixels);
+        FrameBuffer buffer(128, 16, 128, PayloadTrailer::NewlineOrAlignedSpaces);
+        FramedMessage frame;
+        std::string error;
+        buffer.append(message.data(), message.size());
+        lengthsOk = lengthsOk && buffer.next(resolver, frame, error) == FrameResult::FrameReady &&
+            std::string(frame.payload.begin(), frame.payload.end()) == pixels &&
+            buffer.endOfStreamStatus() == EndOfStreamStatus::Clean;
+    }
+    testOk(lengthsOk, "aligned image framing handles every payload alignment including zero bytes");
+    FramedMessage frame;
+    std::string error;
+    FrameBuffer strict(128, 16, 128);
+    strict.append(padded.data(), padded.size());
+    testOk(strict.next(resolver, frame, error) == FrameResult::InvalidTrailer,
+           "default histogram framing continues to reject padded payload trailers");
+    const auto trailerResult = [&resolver, &payload](const std::string& trailer) {
+        FrameBuffer buffer(128, 16, 128, PayloadTrailer::NewlineOrAlignedSpaces);
+        const std::string bytes = "{\"payloadBytes\":8}\n" + payload + trailer;
+        buffer.append(bytes.data(), bytes.size());
+        FramedMessage candidate;
+        std::string candidateError;
+        return buffer.next(resolver, candidate, candidateError);
+    };
+    testOk(trailerResult("   x   \n") == FrameResult::InvalidTrailer,
+           "aligned image framing rejects non-space padding bytes");
+    testOk(trailerResult("      \n") == FrameResult::InvalidTrailer,
+           "aligned image framing rejects too few padding spaces");
+    testOk(trailerResult("        \n") == FrameResult::InvalidTrailer,
+           "aligned image framing rejects excessive padding instead of scanning for a delimiter");
+    FrameBuffer truncated(128, 16, 128, PayloadTrailer::NewlineOrAlignedSpaces);
+    truncated.append(padded.data(), padded.size() - 1);
+    testOk(truncated.next(resolver, frame, error) == FrameResult::NeedMoreData &&
+               truncated.endOfStreamStatus() == EndOfStreamStatus::TruncatedTrailer,
+           "aligned image framing reports EOF within the padded trailer");
+}
+
+void testImagePayloadByteOrder()
+{
+    using namespace ADTimePix3Stream;
+    const auto limits = detectorImageFrameLimits(448, 512, 448 * 512);
+    ImageFrameLayout layout;
+    const auto decode = [&limits, &layout](unsigned bits, bool bigEndian,
+                                           const std::string& bytes, void* output,
+                                           std::size_t outputBytes) {
+        const nlohmann::json header{{"width", 2}, {"height", 1}, {"bitDepth", bits},
+                                    {"dataSize", bytes.size()}, {"bigEndian", bigEndian}};
+        return validateJsonImageHeader(header, limits, layout) == ImageHeaderError::None &&
+            decodeJsonImagePayload(bytes.data(), bytes.size(), layout, output, outputBytes);
+    };
+    std::uint16_t output16[2] = {};
+    testOk(decode(16, true, std::string("\x0a\x7b\x00\xff", 4), output16, sizeof(output16)) &&
+               output16[0] == 0x0a7b && output16[1] == 0x00ff,
+           "image decoder converts big-endian uint16 pixels to native values");
+    testOk(decode(16, false, std::string("\x7b\x0a\xff\x00", 4), output16, sizeof(output16)) &&
+               output16[0] == 0x0a7b && output16[1] == 0x00ff,
+           "image decoder honors little-endian uint16 metadata");
+    std::uint32_t output32[2] = {};
+    testOk(decode(32, true, std::string("\x0a\x7b\x00\xff\x20\x20\x7d\x80", 8), output32, sizeof(output32)) &&
+               output32[0] == 0x0a7b00ffU && output32[1] == 0x20207d80U,
+           "image decoder converts big-endian uint32 pixels to native values");
+    testOk(decode(32, false, std::string("\xff\x00\x7b\x0a\x80\x7d\x20\x20", 8), output32, sizeof(output32)) &&
+               output32[0] == 0x0a7b00ffU && output32[1] == 0x20207d80U,
+           "image decoder honors little-endian uint32 metadata");
+    std::uint8_t output8[2] = {};
+    testOk(decode(8, true, std::string("\x0a\xff", 2), output8, sizeof(output8)) &&
+               output8[0] == 10 && output8[1] == 255 &&
+               decode(8, false, std::string("\x0a\xff", 2), output8, sizeof(output8)) &&
+               output8[0] == 10 && output8[1] == 255,
+           "image decoder preserves uint8 values with either byte-order flag");
+    testOk(validateJsonImageHeader(nlohmann::json{{"width", 2}, {"height", 1},
+               {"bigEndian", "true"}}, limits, layout) == ImageHeaderError::InvalidFieldType,
+           "image validator rejects non-boolean byte-order metadata");
+    validateJsonImageHeader(nlohmann::json{{"width", 2}, {"height", 1}}, limits, layout);
+    const std::string legacy("\x0a\x7b\x00\xff", 4);
+    testOk(layout.bigEndian && decodeJsonImagePayload(legacy.data(), legacy.size(), layout,
+               output16, sizeof(output16)) && output16[0] == 0x0a7b && output16[1] == 0xff &&
+               !decodeJsonImagePayload(legacy.data(), legacy.size()-1, layout, output16, sizeof(output16)),
+           "legacy images default to big endian and truncated payloads are rejected");
+    testOk(!decodeJsonImagePayload(legacy.data(), legacy.size(), layout, output16, sizeof(output16)-1),
+           "image decoder rejects an undersized output buffer");
+}
+
 void testHttpRequestAndResponse()
 {
     FakeHttpResponse response;
@@ -1239,7 +1371,7 @@ void testDestinationResponseValidation()
     testOk(ADTimePix3ServalDestination::parseResponse(200, "{}", snapshot) ==
                ResponseError::None && snapshot.rawChannels == 0 &&
                snapshot.imageChannels == 0 && snapshot.previewImageChannels == 0 &&
-               snapshot.previewHistogramChannels == 0,
+               snapshot.previewHistogramChannels == 0 && snapshot.histogramDestination == "{}",
            "destination parser accepts an empty configured destination");
     testOk(ADTimePix3ServalDestination::parseResponse(
                400, "Destination is not set.", snapshot) == ResponseError::NotConfigured,
@@ -1278,6 +1410,22 @@ void testDestinationResponseValidation()
                200, "{\"Preview\":{\"HistogramChannels\":null}}", snapshot) ==
                ResponseError::InvalidPreviewHistogramChannels,
            "destination parser rejects non-array preview histogram channels");
+}
+
+void testHistogramDestinationReadback()
+{
+    using namespace ADTimePix3ServalDestination;
+    const nlohmann::json valid = {
+        {"Format", "jsonhisto"}, {"Mode", "tof"}, {"NumberOfBins", 64},
+        {"QueueSize", 32}, {"BinWidth", 1e-6}, {"Offset", 0.0}};
+    Snapshot snapshot;
+    const nlohmann::json response = {{"Preview", {{"HistogramChannels", {valid}}}}};
+    testOk(parseResponse(200, response.dump(), snapshot) == ResponseError::None &&
+               nlohmann::json::parse(snapshot.histogramDestination) == valid,
+           "histogram readback preserves Serval's applied channel and numeric values");
+    testOk(parseResponse(200, "{\"Preview\":{\"HistogramChannels\":[null]}}", snapshot) ==
+               ResponseError::InvalidPreviewHistogramChannels,
+           "histogram readback rejects a non-object channel before publication");
 }
 
 void testDashboardResponseValidation()
@@ -2309,13 +2457,15 @@ void testRollingWindowSum()
 
 MAIN(servalProtocolFixtureTest)
 {
-    testPlan(366);
+    testPlan(384);
     testTcpScript();
     testTcpSilenceIsBounded();
     testProductionNetworkClient();
     testAcquisitionCoordinator();
     testStreamWorkerState();
     testConsumeOnceStreamFraming();
+    testAlignedImageFraming();
+    testImagePayloadByteOrder();
     testHttpRequestAndResponse();
     testProductionHttpClient();
     testReconnectPolicy();
@@ -2325,6 +2475,7 @@ MAIN(servalProtocolFixtureTest)
     testDetectorFamilyIdentification();
     testDacUpdateValidation();
     testDestinationResponseValidation();
+    testHistogramDestinationReadback();
     testDashboardResponseValidation();
     testHealthResponseValidation();
     testPixelConfigResponseValidation();

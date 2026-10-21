@@ -34,6 +34,7 @@ struct Snapshot {
     std::size_t imageChannels = 0;
     std::size_t previewImageChannels = 0;
     std::size_t previewHistogramChannels = 0;
+    std::string histogramDestination = "{}";
 };
 
 /** Validate GET /server/destination and count each supported channel family. */

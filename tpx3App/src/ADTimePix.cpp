@@ -1736,6 +1736,7 @@ ADTimePix::ADTimePix(const char* portName, const char* serverURL, int maxBuffers
     createParam(ADTimePixPrvImg1FilePathExistsString,      asynParamInt32, &ADTimePixPrvImg1FilePathExists); 
     // Server, Preview, HistogramChannels[0]  
     createParam(ADTimePixPrvHstBaseString,                   asynParamOctet,    &ADTimePixPrvHstBase);
+    createParam(ADTimePixPrvHstDestinationString,            asynParamOctet,    &ADTimePixPrvHstDestination);
     createParam(ADTimePixPrvHstFilePatString,                asynParamOctet,    &ADTimePixPrvHstFilePat);
     createParam(ADTimePixPrvHstFormatString,                 asynParamInt32,    &ADTimePixPrvHstFormat);
     createParam(ADTimePixPrvHstModeString,                   asynParamInt32,    &ADTimePixPrvHstMode);
@@ -1998,6 +1999,7 @@ ADTimePix::ADTimePix(const char* portName, const char* serverURL, int maxBuffers
     setIntegerParam(ADTimePixImgFramesReceived, 0);
     setInteger64Param(ADTimePixImgAccumulatedFrames, 0);
     setIntegerParam(ADTimePixPrvHstAccumulationEnable, 1);  // Default: enabled
+    setStringParam(ADTimePixPrvHstDestination, "{}");
     setIntegerParam(ADTimePixPrvHstFramesToSum, prvHstFramesToSum_);
     setIntegerParam(ADTimePixPrvHstSumUpdateInterval, prvHstSumUpdateIntervalFrames_);
     setIntegerParam(ADTimePixPrvHstRetentionLimitMB, prvHstRetentionLimitMB_);

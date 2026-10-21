@@ -69,6 +69,11 @@ ResponseError parseResponse(long httpStatus, const std::string& body,
                 return ResponseError::InvalidPreviewHistogramChannels;
             }
             snapshot.previewHistogramChannels = preview["HistogramChannels"].size();
+            if (snapshot.previewHistogramChannels > 0) {
+                if (!preview["HistogramChannels"][0].is_object())
+                    return ResponseError::InvalidPreviewHistogramChannels;
+                snapshot.histogramDestination = preview["HistogramChannels"][0].dump();
+            }
         }
     }
 

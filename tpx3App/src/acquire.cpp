@@ -500,7 +500,10 @@ asynStatus ADTimePix::acquireStart(){
                             &accumulationEnable) != asynSuccess) {
             return failStart("Histogram stream configuration is unavailable");
         }
-        if (path.find("tcp://") == 0 && format == 4 &&
+        // TPX4 output can be trialled externally, but its payload/timing must
+        // not enter the legacy TPX3 decoder, even if PVs change during startup.
+        if (detectorFamily_ != DetectorFamily::TPX4 &&
+            path.find("tcp://") == 0 && format == 4 &&
             accumulationEnable != 0) {
             std::string host;
             int port = 0;
