@@ -25,13 +25,15 @@ std::size_t saturatedAdd(std::size_t first, std::size_t second)
 
 FrameBuffer::FrameBuffer(std::size_t maxHeaderBytes,
                          std::size_t maxPayloadBytes,
-                         std::size_t maxTrailingBytes)
+                         std::size_t maxTrailingBytes,
+                         PayloadTrailer trailer)
     : maxHeaderBytes_(maxHeaderBytes),
       maxPayloadBytes_(maxPayloadBytes),
       maxBufferedBytes_(saturatedAdd(
           saturatedAdd(saturatedAdd(maxHeaderBytes, maxPayloadBytes),
                        maxTrailingBytes),
-          2)),
+          trailer == PayloadTrailer::NewlineOrAlignedSpaces ? 9 : 2)),
+      trailer_(trailer),
       payloadKnown_(false),
       headerBytes_(0),
       payloadBytes_(0)
@@ -110,15 +112,33 @@ FrameResult FrameBuffer::next(const PayloadSizeResolver& resolvePayloadSize,
     if (bytes_.size() == bodyBytes) {
         return FrameResult::NeedMoreData;
     }
+    std::size_t trailerBytes = 1;
     if (bytes_[bodyBytes] != static_cast<std::uint8_t>('\n')) {
-        return FrameResult::InvalidTrailer;
+        if (trailer_ != PayloadTrailer::NewlineOrAlignedSpaces) {
+            return FrameResult::InvalidTrailer;
+        }
+        // Serval 4.3 pads the binary payload with exactly 7 - (size % 8)
+        // spaces, followed by LF. Never scan binary bytes for delimiters or
+        // allow unbounded whitespace to hide a malformed frame boundary.
+        const std::size_t padding = 7 - (payloadBytes_ % 8);
+        for (std::size_t i = 0; i < padding; ++i) {
+            if (bodyBytes + i >= bytes_.size()) return FrameResult::NeedMoreData;
+            if (bytes_[bodyBytes + i] != static_cast<std::uint8_t>(' ')) {
+                return FrameResult::InvalidTrailer;
+            }
+        }
+        trailerBytes = padding + 1;
+        if (bodyBytes + padding >= bytes_.size()) return FrameResult::NeedMoreData;
+        if (bytes_[bodyBytes + padding] != static_cast<std::uint8_t>('\n')) {
+            return FrameResult::InvalidTrailer;
+        }
     }
 
     frame.header = header_;
     frame.payload.assign(bytes_.begin() + static_cast<std::ptrdiff_t>(headerBytes_),
                          bytes_.begin() + static_cast<std::ptrdiff_t>(headerBytes_ + payloadBytes_));
 
-    const std::size_t consumed = bodyBytes + 1;
+    const std::size_t consumed = bodyBytes + trailerBytes;
     bytes_.erase(bytes_.begin(), bytes_.begin() + static_cast<std::ptrdiff_t>(consumed));
     resetCurrentFrame();
     return FrameResult::FrameReady;

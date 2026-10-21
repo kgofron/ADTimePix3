@@ -154,7 +154,6 @@ bool ADTimePix::processPreviewJsonimageLine(
         const bool is_uint32 = layout.pixelFormat == ADTimePix3Stream::PixelFormat::UInt32;
         const NDDataType_t dataType = is_uint8 ? NDUInt8 : (is_uint32 ? NDUInt32 : NDUInt16);
 
-        const size_t pixel_count = layout.pixelCount;
         const size_t binary_needed = layout.payloadBytes;
 
         if (!this->pNDArrayPool) {
@@ -203,20 +202,10 @@ bool ADTimePix::processPreviewJsonimageLine(
             return false;
         }
 
-        if (is_uint32) {
-            uint32_t* pixels = reinterpret_cast<uint32_t*>(pixel_buffer.data());
-            uint32_t* pData = reinterpret_cast<uint32_t*>(pImage->pData);
-            for (size_t i = 0; i < pixel_count; ++i) {
-                pData[i] = __builtin_bswap32(pixels[i]);
-            }
-        } else if (is_uint8) {
-            std::memcpy(pImage->pData, pixel_buffer.data(), pixel_count);
-        } else {
-            uint16_t* pixels = reinterpret_cast<uint16_t*>(pixel_buffer.data());
-            uint16_t* pData = reinterpret_cast<uint16_t*>(pImage->pData);
-            for (size_t i = 0; i < pixel_count; ++i) {
-                pData[i] = __builtin_bswap16(pixels[i]);
-            }
+        if (!ADTimePix3Stream::decodeJsonImagePayload(
+                pixel_buffer.data(), binary_read, layout, pImage->pData, binary_needed)) {
+            ERR_ARGS("%s invalid framed pixel payload", stream.logTag);
+            return false;
         }
 
         const bool updateMetadata = (stream.paramFrameNumber >= 0);
@@ -507,7 +496,8 @@ void ADTimePix::runJsonImageTcpWorker(
     const ADTimePix3Stream::ImageFrameLimits supportedLimits =
         ADTimePix3Stream::detectorImageFrameLimits(0, 0, 0);
     ADTimePix3Stream::FrameBuffer frameBuffer(
-        MAX_BUFFER_SIZE, supportedLimits.maxPayloadBytes, MAX_BUFFER_SIZE);
+        MAX_BUFFER_SIZE, supportedLimits.maxPayloadBytes, MAX_BUFFER_SIZE,
+        ADTimePix3Stream::PayloadTrailer::NewlineOrAlignedSpaces);
 
     const auto resolvePayloadSize =
         [this](const std::string& header, std::size_t& payloadBytes,
@@ -784,7 +774,6 @@ bool ADTimePix::processImgDataLine(char* line_buffer, char* newline_pos, size_t 
         const bool is_uint32 = layout.pixelFormat == ADTimePix3Stream::PixelFormat::UInt32;
         const NDDataType_t dataType = is_uint8 ? NDUInt8 : (is_uint32 ? NDUInt32 : NDUInt16);
 
-        const size_t pixel_count = layout.pixelCount;
         const size_t binary_needed = layout.payloadBytes;
         
         // Create NDArray - check if pool is available
@@ -837,28 +826,10 @@ bool ADTimePix::processImgDataLine(char* line_buffer, char* newline_pos, size_t 
             return false;
         }
         
-        if (is_uint32) {
-            uint32_t* pixels = reinterpret_cast<uint32_t*>(pixel_buffer.data());
-            uint32_t* pData = reinterpret_cast<uint32_t*>(pImage->pData);
-            if (!pixels || !pData) {
-                ERR("Invalid pixel data pointers");
-                return false;
-            }
-            for (size_t i = 0; i < pixel_count; ++i) {
-                pData[i] = __builtin_bswap32(pixels[i]);
-            }
-        } else if (is_uint8) {
-            std::memcpy(pImage->pData, pixel_buffer.data(), pixel_count);
-        } else {
-            uint16_t* pixels = reinterpret_cast<uint16_t*>(pixel_buffer.data());
-            uint16_t* pData = reinterpret_cast<uint16_t*>(pImage->pData);
-            if (!pixels || !pData) {
-                ERR("Invalid pixel data pointers");
-                return false;
-            }
-            for (size_t i = 0; i < pixel_count; ++i) {
-                pData[i] = __builtin_bswap16(pixels[i]);
-            }
+        if (!ADTimePix3Stream::decodeJsonImagePayload(
+                pixel_buffer.data(), binary_read, layout, pImage->pData, binary_needed)) {
+            ERR("Invalid framed Img pixel payload");
+            return false;
         }
         
         // Set image parameters (thread-safe via asynPortDriver)

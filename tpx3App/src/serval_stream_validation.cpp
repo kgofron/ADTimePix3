@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <string>
 
@@ -72,9 +73,11 @@ ImageHeaderError validateJsonImageHeader(const nlohmann::json& header,
         !header["height"].is_number_integer() ||
         (header.contains("pixelFormat") && !header["pixelFormat"].is_string()) ||
         (header.contains("dataSize") && !header["dataSize"].is_number_integer()) ||
-        (header.contains("bitDepth") && !header["bitDepth"].is_number_integer())) {
+        (header.contains("bitDepth") && !header["bitDepth"].is_number_integer()) ||
+        (header.contains("bigEndian") && !header["bigEndian"].is_boolean())) {
         return ImageHeaderError::InvalidFieldType;
     }
+    layout.bigEndian = header.value("bigEndian", true);
 
     std::int64_t width = 0;
     std::int64_t height = 0;
@@ -191,6 +194,39 @@ ImageHeaderError validateJsonImageHeader(const nlohmann::json& header,
     layout.bytesPerPixel = bytesPerPixel;
     layout.payloadBytes = payloadBytes;
     return ImageHeaderError::None;
+}
+
+bool decodeJsonImagePayload(const char* source, std::size_t sourceBytes,
+                            const ImageFrameLayout& layout,
+                            void* destination, std::size_t destinationBytes)
+{
+    std::size_t bytesPerPixel = 0;
+    switch (layout.pixelFormat) {
+    case PixelFormat::UInt8: bytesPerPixel = 1; break;
+    case PixelFormat::UInt16: bytesPerPixel = 2; break;
+    case PixelFormat::UInt32: bytesPerPixel = 4; break;
+    }
+    std::size_t expectedBytes = 0;
+    if (!source || !destination || bytesPerPixel == 0 ||
+        !checkedMultiply(layout.pixelCount, bytesPerPixel, expectedBytes) ||
+        sourceBytes != expectedBytes || sourceBytes != layout.payloadBytes ||
+        destinationBytes < expectedBytes) {
+        return false;
+    }
+    const std::uint16_t nativeOne = 1;
+    const bool nativeLittleEndian =
+        *reinterpret_cast<const unsigned char*>(&nativeOne) == 1;
+    if (bytesPerPixel == 1 || layout.bigEndian != nativeLittleEndian) {
+        std::memcpy(destination, source, expectedBytes);
+        return true;
+    }
+    auto* output = static_cast<char*>(destination);
+    for (std::size_t offset = 0; offset < expectedBytes; offset += bytesPerPixel) {
+        for (std::size_t byte = 0; byte < bytesPerPixel; ++byte) {
+            output[offset + byte] = source[offset + bytesPerPixel - 1 - byte];
+        }
+    }
+    return true;
 }
 
 const char* imageHeaderErrorMessage(ImageHeaderError error)

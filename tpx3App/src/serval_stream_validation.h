@@ -45,6 +45,7 @@ struct ImageFrameLayout {
     std::size_t pixelCount;
     std::size_t bytesPerPixel;
     std::size_t payloadBytes;
+    bool bigEndian = true;
 };
 
 ImageFrameLimits detectorImageFrameLimits(int maxSizeX, int maxSizeY, int pixelCount);
@@ -56,6 +57,12 @@ ImageHeaderError validateJsonImageHeader(const nlohmann::json& header,
 const char* imageHeaderErrorMessage(ImageHeaderError error);
 
 const char* pixelFormatName(PixelFormat format);
+
+// Decode validated wire pixels into native byte order without alignment
+// assumptions about the source buffer. Legacy headers default to big endian.
+bool decodeJsonImagePayload(const char* source, std::size_t sourceBytes,
+                            const ImageFrameLayout& layout,
+                            void* destination, std::size_t destinationBytes);
 
 }  // namespace ADTimePix3Stream
 

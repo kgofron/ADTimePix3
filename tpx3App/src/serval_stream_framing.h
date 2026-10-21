@@ -42,19 +42,27 @@ enum class EndOfStreamStatus {
 using PayloadSizeResolver = std::function<bool(
     const std::string& header, std::size_t& payloadBytes, std::string& error)>;
 
+enum class PayloadTrailer {
+    Newline,
+    NewlineOrAlignedSpaces
+};
+
 /**
  * Owns unconsumed TCP bytes for one newline-header/binary-payload stream.
  *
  * The payload size resolver runs exactly once per header. Once resolved, no
  * payload byte is examined for a delimiter. A completed Serval frame consumes
- * its header, header newline, declared payload, and payload newline atomically
- * while retaining only bytes belonging to later messages.
+ * its header, header newline, declared payload, and payload trailer atomically
+ * while retaining only bytes belonging to later messages. Image streams may
+ * also accept Serval 4.3's space padding before the payload newline, aligning
+ * the payload plus trailer to eight bytes. Histogram streams remain strict.
  */
 class FrameBuffer {
 public:
     FrameBuffer(std::size_t maxHeaderBytes,
                 std::size_t maxPayloadBytes,
-                std::size_t maxTrailingBytes);
+                std::size_t maxTrailingBytes,
+                PayloadTrailer trailer = PayloadTrailer::Newline);
 
     FrameResult append(const char* data, std::size_t size);
 
@@ -74,6 +82,7 @@ private:
     std::size_t maxHeaderBytes_;
     std::size_t maxPayloadBytes_;
     std::size_t maxBufferedBytes_;
+    PayloadTrailer trailer_;
     std::vector<std::uint8_t> bytes_;
     bool payloadKnown_;
     std::size_t headerBytes_;
