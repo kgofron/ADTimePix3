@@ -1933,6 +1933,43 @@ void testCalibrationPathPolicy()
 }
 
 
+void testDestinationBaseNormalization()
+{
+    using ADTimePix3Destination::normalizeBase;
+    struct Case { const char* input; const char* expected; const char* description; };
+    const Case cases[] = {
+        {"/tmp/raw", "file:/tmp/raw", "absolute directory gets one file: prefix"},
+        {"/", "file:/", "root directory gets one file: prefix"},
+        {"/tmp/raw/", "file:/tmp/raw/", "trailing directory slash is preserved"},
+        {"/tmp/raw data", "file:/tmp/raw data", "directory spaces are preserved"},
+        {"file:/tmp/raw", "file:/tmp/raw", "explicit file URI is not prefixed twice"},
+        {"http://localhost:8088", "http://localhost:8088", "typed HTTP URL is preserved"},
+        {"tcp://connect@localhost:8088", "tcp://connect@localhost:8088", "typed TCP URL is preserved"},
+        {"", "", "empty input remains empty"},
+        {"relative/raw", "relative/raw", "relative input is left for validation"},
+        {"//tmp/raw", "//tmp/raw", "double-leading slash is not silently repaired"},
+        {"file://tmp/raw", "file://tmp/raw", "malformed file URI is not silently repaired"},
+        {"file:///tmp/raw", "file:///tmp/raw", "three-slash file URI is not silently repaired"}
+    };
+    for (const Case& entry : cases) {
+        const std::string result = normalizeBase(entry.input);
+        testOk(result == entry.expected && normalizeBase(result) == result,
+               "destination normalization: %s (idempotent)", entry.description);
+    }
+    ADTimePix3Destination::Policy policy;
+    policy.configure("file:/approved/*,tcp://*,http://*");
+    testOk(policy.allows(normalizeBase("/approved/raw")),
+           "normalized chooser directory passes the existing destination allowlist");
+    testOk(!policy.allows(normalizeBase("/approved/../outside")),
+           "normalization does not bypass traversal rejection");
+    testOk(!policy.allows(normalizeBase("/approved-sibling/raw")),
+           "normalization does not bypass the allowed directory boundary");
+    testOk(!policy.allows(normalizeBase("file:///approved/raw")) &&
+               !policy.allows(normalizeBase("relative/raw")) &&
+               !policy.allows(normalizeBase("//approved/raw")),
+           "normalization preserves rejection of malformed and relative destinations");
+}
+
 void testDestinationPolicy()
 {
     using ADTimePix3Destination::Policy;
@@ -2492,7 +2529,7 @@ void testRollingWindowSum()
 
 MAIN(servalProtocolFixtureTest)
 {
-    testPlan(391);
+    testPlan(407);
     testTcpScript();
     testTcpSilenceIsBounded();
     testProductionNetworkClient();
@@ -2517,6 +2554,7 @@ MAIN(servalProtocolFixtureTest)
     testPixelConfigResponseValidation();
     testStreamHeaderValidation();
     testCalibrationPathPolicy();
+    testDestinationBaseNormalization();
     testDestinationPolicy();
     testBpcFileBounds();
     testBpcMaskSemantics();

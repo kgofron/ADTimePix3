@@ -12,6 +12,10 @@
 
 namespace ADTimePix3Destination {
 
+/** Convert a native absolute directory to file:/path. Preserve explicit URIs
+ * and invalid/relative input for the normal destination validation. */
+std::string normalizeBase(const std::string& value);
+
 enum class PolicyStatus {
     Ok,
     NotConfigured,

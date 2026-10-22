@@ -127,7 +127,7 @@ bool ADTimePix::checkPath(std::string &filePath)
      * the directory if it has that trailing character */
     lastChar = filePath[len-1];
 
-    if (lastChar == '/') {
+    if (lastChar == '/' && len > 1) {
         filePath.resize(len-1);
     }
     istat = stat(filePath.c_str(), &buff);
@@ -136,7 +136,7 @@ bool ADTimePix::checkPath(std::string &filePath)
         pathExists = true;
     }
     /* Add a terminator even if it did not have one originally */
-    filePath.append(delim);
+    if (filePath.back() != '/') filePath.append(delim);
     return pathExists;
 }
 
@@ -223,7 +223,7 @@ asynStatus ADTimePix::checkChannelPath(int baseParam, int streamParam, int fileP
     getStringParam(baseParam, filePath);
     if (filePath.size() == 0) return asynSuccess;
 
-    if (filePath.size() > 6) {
+    if (filePath.size() > 6 || filePath == "file:/") {
         // Check for file:/ protocol with strict single slash enforcement
         if (filePath.compare(0, 5, "file:") == 0) {
             // Check that the character at position 5 is exactly one '/'
@@ -430,6 +430,17 @@ asynStatus ADTimePix::writeOctet(asynUser *pasynUser, const char *value,
     const auto nullPos = octetValue.find('\0');
     if (nullPos != std::string::npos) {
         octetValue.resize(nullPos);
+    }
+    // Phoebus's native directory selector writes an absolute filesystem path.
+    // Store destination paths as Serval file URIs for every detector family
+    // before the path checks and destination allowlist run. Explicit URIs,
+    // including file: values supplied by existing scan clients, pass through.
+    const bool isDestinationBase =
+        function == ADTimePixRawBase || function == ADTimePixRaw1Base ||
+        function == ADTimePixImgBase || function == ADTimePixImg1Base ||
+        function == ADTimePixPrvImgBase || function == ADTimePixPrvImg1Base;
+    if (isDestinationBase) {
+        octetValue = ADTimePix3Destination::normalizeBase(octetValue);
     }
     if (isThresholdList) {
         const auto first = octetValue.find_first_not_of(" \t");

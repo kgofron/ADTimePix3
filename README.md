@@ -59,6 +59,27 @@ Internal `ERR` / `WARN` / `LOG` / `FLOW` helpers (**`ADTimePixLog.h`**, used acr
 * **`WARN` visibility**: by default **`WARN` / `WARN_ARGS`** use **`ASYN_TRACE_WARNING`**. The port’s asyn **trace mask** must include the **warning** bit for those lines to appear. If your site only enables **ERROR**-level trace and you need the old behavior, build with **`ADTPX3_WARN_AS_ERROR`** so `WARN*` is emitted at **`ASYN_TRACE_ERROR`** (commented example in the same `Makefile`).
 * **Release detail**: see [RELEASE.md](RELEASE.md) (**R1-8-0**, October 6, 2026; **R1-7-4**; **R1-7-3**; **R1-7-2**; **R1-7-1**; **R1-7-0**).
 
+Serval file destinations
+-----------------------
+
+TimePix3, Medipix3 and Timepix4 share directory-to-URI handling for
+`RawFilePath`, `Raw1FilePath`, `ImgFilePath`, `Img1FilePath`,
+`PrvImgFilePath` and `PrvImg1FilePath`. An absolute directory selected by a
+native Phoebus directory chooser or supplied by an acquisition client is
+normalized inside the driver: `/data/run42` becomes `file:/data/run42`.
+An explicit `file:/...`, `tcp://...` or `http://...` URI is passed through
+unchanged, including its host, port and listen/connect setting. Existing
+clients that prepend `file:` do not need to remove it. Destination validation
+and detector-specific output restrictions still apply.
+
+The writable PV can retain the plain path supplied by the client; its existing
+`_RBV` shows the normalized requested URI. File destinations continue to use a
+directory in the path PV and a separate filename prefix/time pattern in the
+corresponding `*FileTemplate` PV. Serval adds numbering and the extension.
+This conversion does not split a complete filename supplied in a path PV.
+The directory belongs to the Serval computer; a chooser browses the Phoebus
+computer and the Exists indication checks the IOC computer.
+
 TCP Image Streaming
 --------------------
 

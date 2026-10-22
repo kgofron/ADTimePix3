@@ -97,6 +97,17 @@ guards and independent applied JSON readbacks for both raw channels. Live
 Serval/emulator captures and their limits are recorded under **Raw destinations
 on Serval 4.3.0** in `documentation/timepix4/integration.md`.
 
+Destination normalization fixtures also check native chooser paths, `/`,
+trailing slashes and spaces, repeated normalization, unchanged file/HTTP/TCP
+URIs, and continued allowlist rejection of traversal, sibling directories,
+relative paths and malformed file URIs. The helper is shared by the raw,
+image and preview image Base parameters across TPX3, MPX3 and TPX4; explicit
+`file:` URIs supplied by existing scan clients pass through unchanged.
+The integration guide records the earlier TPX4 isolated IOC checks of all six
+existing path/readback pairs and applied raw channel JSON. Those checks do not
+render the Phoebus chooser and have not been repeated for TPX3/MPX3 since
+removing the detector-family restriction.
+
 Compare saved Serval 4.3 single-chip raw file/TCP captures offline with:
 
 ```sh

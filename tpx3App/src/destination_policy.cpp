@@ -54,6 +54,15 @@ bool safeFileDestination(const std::string& value)
 
 }  // namespace
 
+std::string normalizeBase(const std::string& value)
+{
+    if (!value.empty() && value[0] == '/' &&
+        (value.size() == 1 || value[1] != '/')) {
+        return "file:" + value;
+    }
+    return value;
+}
+
 PolicyStatus Policy::configure(const std::string& commaSeparatedEntries)
 {
     entries_.clear();
