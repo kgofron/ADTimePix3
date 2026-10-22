@@ -48,6 +48,11 @@ ResponseError parseResponse(long httpStatus, const std::string& body,
             return ResponseError::InvalidRawChannels;
         }
         snapshot.rawChannels = (*destination)["Raw"].size();
+        for (std::size_t i = 0; i < snapshot.rawChannels && i < 2; ++i) {
+            if (!(*destination)["Raw"][i].is_object())
+                return ResponseError::InvalidRawChannels;
+            snapshot.rawDestinations[i] = (*destination)["Raw"][i].dump();
+        }
     }
     if (destination->contains("Image")) {
         if (!(*destination)["Image"].is_array()) {
@@ -98,7 +103,7 @@ const char* responseErrorMessage(ResponseError error)
         case ResponseError::InvalidDestination:
             return "server destination wrapper is not an object";
         case ResponseError::InvalidRawChannels:
-            return "server destination Raw field is not an array";
+            return "server destination Raw must be an array of channel objects";
         case ResponseError::InvalidImageChannels:
             return "server destination Image field is not an array";
         case ResponseError::InvalidPreview:
@@ -109,6 +114,22 @@ const char* responseErrorMessage(ResponseError error)
             return "server destination preview HistogramChannels field is not an array";
     }
     return "unknown server destination response error";
+}
+
+const char* tpx4RawOutputError(const std::string& version, const std::string& base,
+                              int splitStrategy, int queueSize)
+{
+    if (version != "4.3.0" && version.rfind("4.3.0-", 0) != 0)
+        return "TPX4 raw output is qualified only with Serval 4.3.0";
+    const bool file = base.rfind("file:/", 0) == 0;
+    const bool tcp = base.rfind("tcp://", 0) == 0;
+    if (!file && !tcp)
+        return "TPX4 raw output requires a file:/ or tcp:// destination";
+    if (queueSize <= 0)
+        return "TPX4 raw queue size must be positive";
+    if (file && (splitStrategy < 0 || splitStrategy > 1))
+        return "TPX4 raw file split strategy must be single_file or frame";
+    return nullptr;
 }
 
 }  // namespace ADTimePix3ServalDestination

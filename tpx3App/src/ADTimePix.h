@@ -211,6 +211,8 @@
 
     // Server, raw
 #define ADTimePixRawBaseString              "TPX3_RAW_BASE"             // (asynOctet,         w)      Raw Destination Base
+#define ADTimePixRawDestinationString       "TPX3_RAW_DESTINATION"      // Applied Raw[0] JSON
+#define ADTimePixRaw1DestinationString      "TPX3_RAW1_DESTINATION"     // Applied Raw[1] JSON
 #define ADTimePixRawFilePatString           "TPX3_RAW_FILEPAT"          // (asynOctet,         w)      Raw Destination File Pattern
 #define ADTimePixRawSplitStrategyString     "TPX3_RAW_SPLITSTG"         // (asynInt32,         w)      Raw Destination Split Strategy
 #define ADTimePixRawQueueSizeString         "TPX3_RAW_QUEUESIZE"        // (asynInt32,         w)      Raw Destination Queue Size
@@ -633,6 +635,8 @@ class ADTimePix : public ADDriver{
 
             // Server, raw
         int ADTimePixRawBase;              
+        int ADTimePixRawDestination;
+        int ADTimePixRaw1Destination;
         int ADTimePixRawFilePat;           
         int ADTimePixRawSplitStrategy;    
         int ADTimePixRawQueueSize;

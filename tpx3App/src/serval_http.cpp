@@ -1671,6 +1671,8 @@ asynStatus ADTimePix::getServer(){
      * change the channel-enable readbacks. */
     setIntegerParam(ADTimePixWriteRawRead, snapshot.rawChannels >= 1 ? 1 : 0);
     setIntegerParam(ADTimePixWriteRaw1Read, snapshot.rawChannels >= 2 ? 1 : 0);
+    setStringParam(ADTimePixRawDestination, snapshot.rawDestinations[0].c_str());
+    setStringParam(ADTimePixRaw1Destination, snapshot.rawDestinations[1].c_str());
     setIntegerParam(ADTimePixWriteImgRead, snapshot.imageChannels >= 1 ? 1 : 0);
     setIntegerParam(ADTimePixWriteImg1Read, snapshot.imageChannels >= 2 ? 1 : 0);
     setIntegerParam(ADTimePixWritePrvImgRead,
@@ -1822,6 +1824,23 @@ asynStatus ADTimePix::configureRawChannel(int channelIndex, json& server_j) {
     
     if (getParameterSafely(baseParam, fileStr) != asynSuccess) return asynError;
     if (validateDestination(fileStr) != asynSuccess) return asynError;
+    if (detectorFamily_ == DetectorFamily::TPX4) {
+        std::string version;
+        int queue = 0, split = 0;
+        const int splitParam = channelIndex == 0 ? ADTimePixRawSplitStrategy
+                                                : ADTimePixRaw1SplitStrategy;
+        if (getStringParam(ADSDKVersion, version) != asynSuccess ||
+            getParameterSafely(queueSizeParam, queue) != asynSuccess ||
+            getParameterSafely(splitParam, split) != asynSuccess) return asynError;
+        const char* error = ADTimePix3ServalDestination::tpx4RawOutputError(
+            version, fileStr, split, queue);
+        if (error) {
+            setStringParam(ADTimePixWriteMsg, error);
+            callParamCallbacks();
+            ERR_ARGS("%s", error);
+            return asynError;
+        }
+    }
     server_j["Raw"][channelIndex]["Base"] = fileStr;
     
     // Check if this is a TCP connection (starts with 'tcp://')
@@ -2375,14 +2394,12 @@ asynStatus ADTimePix::sendMeasurementConfig() {
 asynStatus ADTimePix::fileWriter(){
     FLOW("Configuring file writer channels");
 
-    /* TPX4 permits preview image 0 and experimental full image 0.
+    /* TPX4 permits Preview 0, experimental Image 0 and qualified raw output.
      * Reject stale or manually enabled TPX3-only channel flags before a
      * destination PUT, including during acquisition startup. */
     if (detectorFamily_ == DetectorFamily::TPX4) {
         struct ChannelFlag { int parameter; const char* name; };
         const ChannelFlag unsupported[] = {
-            {ADTimePixWriteRaw, "Raw[0]"},
-            {ADTimePixWriteRaw1, "Raw[1]"},
             {ADTimePixWriteImg1, "Image[1]"},
             {ADTimePixWritePrvImg1, "Preview.ImageChannels[1]"},
         };
@@ -2403,9 +2420,19 @@ asynStatus ADTimePix::fileWriter(){
         int previewEnabled = 0;
         int imageEnabled = 0;
         int histogramEnabled = 0;
+        int rawEnabled = 0, raw1Enabled = 0;
         if (getParameterSafely(ADTimePixWritePrvImg, previewEnabled) != asynSuccess ||
             getParameterSafely(ADTimePixWriteImg, imageEnabled) != asynSuccess ||
-            getParameterSafely(ADTimePixWritePrvHst, histogramEnabled) != asynSuccess) {
+            getParameterSafely(ADTimePixWritePrvHst, histogramEnabled) != asynSuccess ||
+            getParameterSafely(ADTimePixWriteRaw, rawEnabled) != asynSuccess ||
+            getParameterSafely(ADTimePixWriteRaw1, raw1Enabled) != asynSuccess) {
+            return asynError;
+        }
+        if (raw1Enabled && !rawEnabled) {
+            const char* message = "TPX4 Raw[1] requires Raw[0] enabled";
+            setStringParam(ADTimePixWriteMsg, message);
+            callParamCallbacks();
+            ERR_ARGS("%s", message);
             return asynError;
         }
         if (histogramEnabled != 0) {
@@ -2418,8 +2445,8 @@ asynStatus ADTimePix::fileWriter(){
             ERR_ARGS("%s", message);
             return asynError;
         }
-        if (previewEnabled == 0 && imageEnabled == 0) {
-            const char* message = "TPX4 destination blocked: enable preview or image channel 0";
+        if (previewEnabled == 0 && imageEnabled == 0 && rawEnabled == 0) {
+            const char* message = "TPX4 destination blocked: enable raw, preview or image channel 0";
             setStringParam(ADTimePixWriteMsg, message);
             callParamCallbacks();
             ERR_ARGS("%s", message);

@@ -56,7 +56,7 @@
     <actions><action type="write_pv"><description>Apply TPX4 destinations</description><pv_name>$(P)$(R)WriteData</pv_name><value>1</value></action></actions>
     <text>Apply destination</text><x>770</x><y>88</y><width>174</width><height>29</height>
     <background_color><color red="115" green="205" blue="238"/></background_color>
-    <tooltip>Push enabled Preview 0 and Image 0 channels to Serval, then refresh readbacks. TPX4 histogram output remains blocked.</tooltip>
+    <tooltip>Push enabled Raw, Preview 0 and Image 0 channels to Serval, then refresh readbacks. TPX4 histogram output remains blocked.</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ApplyHint</name><text>Changes take effect when you apply the destination.</text>
@@ -120,9 +120,10 @@
   <widget type="label" version="2.0.0"><name>PvaEndpoint</name><text>pva://$(P)Pva1:Image</text><x>672</x><y>272</y><width>270</width><height>22</height></widget>
   <widget type="label" version="2.0.0"><name>DiskLimitLabel</name><text>Stop on disk limit</text><x>672</x><y>319</y><width>160</width><height>22</height></widget>
   <widget type="bool_button" version="2.0.0"><name>DiskLimit</name><pv_name>$(P)$(R)PrvStpOnDskLim</pv_name><bit>-1</bit><x>836</x><y>315</y><width>84</width><height>27</height><off_color><color red="153" green="163" blue="175"/></off_color><on_color><color red="47" green="177" blue="118"/></on_color><tooltip>Applies to file destinations</tooltip></widget>
-  <widget type="label" version="2.0.0"><name>ScopeTitle</name><text>Current TPX4 scope</text><x>672</x><y>372</y><width>270</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
-  <widget type="label" version="2.0.0"><name>ScopeBody</name><text>Image 0 is experimental. Histogram is unavailable in tested Serval 4.1.6 / 4.3. Raw and second channels remain blocked.</text><x>672</x><y>400</y><width>270</width><height>60</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
-  <widget type="action_button" version="3.0.0"><name>HistogramDestination</name><text>Histogram destination</text><x>672</x><y>475</y><width>270</width><height>28</height><actions><action type="open_display"><description>Timepix4 Histogram destination</description><file>Tpx4HistogramDestination.bob</file><target>tab</target></action></actions></widget>
+  <widget type="label" version="2.0.0"><name>ScopeTitle</name><text>Current TPX4 scope</text><x>672</x><y>350</y><width>270</width><height>22</height><font><font family="Sans" style="BOLD" size="11.0"/></font></widget>
+  <widget type="label" version="2.0.0"><name>ScopeBody</name><text>Image 0 and raw output are experimental. Histogram and second image channels remain blocked.</text><x>672</x><y>377</y><width>270</width><height>60</height><wrap_words>true</wrap_words><foreground_color><color red="130" green="80" blue="32"/></foreground_color></widget>
+  <widget type="action_button" version="3.0.0"><name>RawDestination</name><text>Raw destinations</text><x>672</x><y>450</y><width>270</width><height>28</height><actions><action type="open_display"><description>Timepix4 raw destinations</description><file>Tpx4RawDestination.bob</file><target>tab</target></action></actions></widget>
+  <widget type="action_button" version="3.0.0"><name>HistogramDestination</name><text>Histogram destination</text><x>672</x><y>482</y><width>270</width><height>28</height><actions><action type="open_display"><description>Timepix4 Histogram destination</description><file>Tpx4HistogramDestination.bob</file><target>tab</target></action></actions></widget>
 
   <widget type="rectangle" version="2.0.0">
     <name>ImageCard</name><x>18</x><y>532</y><width>626</width><height>355</height>

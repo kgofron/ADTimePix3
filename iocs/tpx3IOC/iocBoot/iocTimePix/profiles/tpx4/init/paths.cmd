@@ -5,9 +5,10 @@
 # TCP 8089. Image[0] is configured locally for experimental validation but
 # remains disabled at startup. Histogram output and its legacy receiver stay
 # disabled: tested Serval 4.1.6 / 4.3.0 reject TPX4 histogram start. Secondary
-# channels, raw and histogram remain blocked by the TPX4 destination guard.
+# image channels and histogram remain blocked by the TPX4 destination guard.
+# Raw file/external TCP output is available manually with Serval 4.3.0.
 
-# Clear all unqualified destination flags, including values restored by
+# Clear optional and unqualified destination flags, including values restored by
 # autosave, before the TPX4 destination is applied.
 dbpf("$(PREFIX)cam1:WriteRaw", "0")
 dbpf("$(PREFIX)cam1:WriteRaw1", "0")

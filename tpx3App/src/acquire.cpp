@@ -661,6 +661,10 @@ void ADTimePix::timePixCallback(){
         //    epicsThreadSleep(0);
         }
         frameCounter = new_frame_num;
+        // Measurement progress also applies to raw-only and Image-only runs.
+        // It must not depend on having a Preview receiver enabled.
+        setIntegerParam(ADNumImagesCounter, frameCounter);
+        callParamCallbacks();
 
         getIntegerParam(ADTimePixWritePrvImg, &writeChannel);
         if (writeChannel != 0) {
@@ -676,17 +680,11 @@ void ADTimePix::timePixCallback(){
                     // For TCP streaming, the worker thread handles everything
                     // Just ensure it's running - no need to process image here
                     readImageFromTCP(); // Worker thread handles image processing
-                    // Worker thread will update pArrays[0] and trigger callbacks asynchronously
-                    // We just update counters based on frame count from measurement endpoint
-                    setIntegerParam(ADNumImagesCounter, frameCounter);
-                callParamCallbacks();
+                    // Worker thread updates pArrays[0] and triggers callbacks asynchronously.
                 } else {
                     // Non-TCP path: TCP streaming is required for preview images
                     // GraphicsMagick HTTP method has been removed - use TCP streaming instead
                     WARN("PrvImg requires TCP streaming (tcp:// format). GraphicsMagick HTTP method no longer supported.");
-                    // Worker thread handles TCP streaming, so just update counters
-                     setIntegerParam(ADNumImagesCounter, frameCounter);
-                     callParamCallbacks();
                 }
             }
         }

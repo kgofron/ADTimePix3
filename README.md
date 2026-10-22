@@ -15,7 +15,7 @@ Additional information:
 * **PixelConfig vs on-disk BPC** (SERVAL live config vs `.bpc` file, `PixelConfigDiff` / mask layout): [documentation/PIXELCONFIG_BPC_DIFF.md](documentation/PIXELCONFIG_BPC_DIFF.md)
 * **Readout stack diagram** (48→64→SERVAL; **ADServal** / ADTimePix3 is a SERVAL-only client; **LUNA** is an optional parallel ASI path not used by this driver): [PNG](documentation/TimePix3_pipeline_48_64_96_caption.png), [SVG source](documentation/TimePix3_pipeline_48_64_96.svg) (regenerate PNG with Inkscape from the SVG if you edit the figure).
 * **Medipix3 (R1-7-0)**: unified **ADServal** driver with runtime `DetectorFamily` detection, capability PVs, and IOC profile `st_mpx3.cmd` — validated on emulator and first ASI hardware preview (July 2026); equalization / IXS band-pass on hardware still to follow — [documentation/medipix3/integration.md](documentation/medipix3/integration.md) ([index](documentation/medipix3/README.md)).
-* **Timepix4 (experimental)**: explicit TPX4 family detection, rectangular 448×512 single-chip geometry, and conservative IOC/Phoebus profiles. PixelConfig, masks, calibration, raw/histogram streams, additional orientations, and physical hardware are not yet qualified — [documentation/timepix4/](documentation/timepix4/README.md).
+* **Timepix4 (experimental)**: explicit TPX4 family detection, rectangular 448×512 single-chip geometry, conservative IOC/Phoebus profiles, and experimental raw file/external TCP output on Serval 4.3.0. PixelConfig, masks, calibration, raw-event decoding/completeness, histogram streams, additional orientations, and physical hardware are not yet qualified — [documentation/timepix4/](documentation/timepix4/README.md).
 
 Notes:
 ------

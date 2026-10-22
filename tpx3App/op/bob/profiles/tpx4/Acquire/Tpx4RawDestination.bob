@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<display version="2.0.0">
+  <name>Tpx4RawDestination</name>
+  <width>980</width>
+  <height>930</height>
+  <widget type="label" version="2.0.0">
+    <name>Title</name>
+    <x>20</x>
+    <y>15</y>
+    <width>930</width>
+    <height>30</height>
+    <text>Timepix4 / Raw destinations — Serval 4.3.0</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Hint</name>
+    <x>20</x>
+    <y>55</y>
+    <width>930</width>
+    <height>40</height>
+    <text>Configure while idle, then Apply destination. File paths belong to the Serval computer. Raw[1] requires Raw[0].</text>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Apply</name>
+    <x>750</x>
+    <y>105</y>
+    <width>210</width>
+    <height>30</height>
+    <text>Apply destination</text>
+    <actions>
+      <action type="write_pv">
+        <description>Apply enabled TPX4 destinations</description>
+        <pv_name>$(P)$(R)WriteData</pv_name>
+        <value>1</value>
+      </action>
+    </actions>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Version</name>
+    <x>20</x>
+    <y>108</y>
+    <width>240</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)SDKVersion_RBV</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawTitle</name>
+    <x>20</x>
+    <y>155</y>
+    <width>450</width>
+    <height>25</height>
+    <text>Raw[0] — file or external TCP consumer</text>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>RawEnable</name>
+    <x>650</x>
+    <y>155</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)WriteRaw</pv_name>
+    <bit>-1</bit>
+    <tooltip>Include this raw channel when applying destinations</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RawApplied</name>
+    <x>800</x>
+    <y>155</y>
+    <width>22</width>
+    <height>22</height>
+    <pv_name>$(P)$(R)WriteRaw_RBV</pv_name>
+    <tooltip>Channel present in Serval destination readback</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawAppliedLabel</name>
+    <x>830</x>
+    <y>155</y>
+    <width>100</width>
+    <height>23</height>
+    <text>Applied</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawFilePathLabel</name>
+    <x>20</x>
+    <y>197</y>
+    <width>130</width>
+    <height>25</height>
+    <text>Base URI</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>RawFilePath</name>
+    <x>160</x>
+    <y>197</y>
+    <width>790</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)RawFilePath</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawFileTemplateLabel</name>
+    <x>20</x>
+    <y>233</y>
+    <width>130</width>
+    <height>25</height>
+    <text>File pattern</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>RawFileTemplate</name>
+    <x>160</x>
+    <y>233</y>
+    <width>790</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)RawFileTemplate</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawSplitStgLabel</name>
+    <x>20</x>
+    <y>269</y>
+    <width>130</width>
+    <height>25</height>
+    <text>File splitting</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>RawSplitStg</name>
+    <x>160</x>
+    <y>269</y>
+    <width>260</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)RawSplitStg</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawQueueSizeLabel</name>
+    <x>20</x>
+    <y>305</y>
+    <width>130</width>
+    <height>25</height>
+    <text>Queue size</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>RawQueueSize</name>
+    <x>160</x>
+    <y>305</y>
+    <width>260</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)RawQueueSize</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>RawReadbackLabel</name>
+    <x>20</x>
+    <y>345</y>
+    <width>930</width>
+    <height>22</height>
+    <text>Applied channel JSON ({} means absent):</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>RawDestination</name>
+    <x>20</x>
+    <y>373</y>
+    <width>930</width>
+    <height>60</height>
+    <pv_name>$(P)$(R)RawDestination_RBV</pv_name>
+    <format>6</format>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1Title</name>
+    <x>20</x>
+    <y>455</y>
+    <width>450</width>
+    <height>25</height>
+    <text>Raw[1] — file or external TCP consumer</text>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>Raw1Enable</name>
+    <x>650</x>
+    <y>455</y>
+    <width>120</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)WriteRaw1</pv_name>
+    <bit>-1</bit>
+    <tooltip>Include this raw channel when applying destinations</tooltip>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>Raw1Applied</name>
+    <x>800</x>
+    <y>455</y>
+    <width>22</width>
+    <height>22</height>
+    <pv_name>$(P)$(R)WriteRaw1_RBV</pv_name>
+    <tooltip>Channel present in Serval destination readback</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1AppliedLabel</name>
+    <x>830</x>
+    <y>455</y>
+    <width>100</width>
+    <height>23</height>
+    <text>Applied</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1FilePathLabel</name>
+    <x>20</x>
+    <y>497</y>
+    <width>130</width>
+    <height>25</height>
+    <text>Base URI</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Raw1FilePath</name>
+    <x>160</x>
+    <y>497</y>
+    <width>790</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)Raw1FilePath</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1FileTemplateLabel</name>
+    <x>20</x>
+    <y>533</y>
+    <width>130</width>
+    <height>25</height>
+    <text>File pattern</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Raw1FileTemplate</name>
+    <x>160</x>
+    <y>533</y>
+    <width>790</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)Raw1FileTemplate</pv_name>
+    <format>6</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1SplitStgLabel</name>
+    <x>20</x>
+    <y>569</y>
+    <width>130</width>
+    <height>25</height>
+    <text>File splitting</text>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Raw1SplitStg</name>
+    <x>160</x>
+    <y>569</y>
+    <width>260</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)Raw1SplitStg</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1QueueSizeLabel</name>
+    <x>20</x>
+    <y>605</y>
+    <width>130</width>
+    <height>25</height>
+    <text>Queue size</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Raw1QueueSize</name>
+    <x>160</x>
+    <y>605</y>
+    <width>260</width>
+    <height>25</height>
+    <pv_name>$(P)$(R)Raw1QueueSize</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Raw1ReadbackLabel</name>
+    <x>20</x>
+    <y>645</y>
+    <width>930</width>
+    <height>22</height>
+    <text>Applied channel JSON ({} means absent):</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Raw1Destination</name>
+    <x>20</x>
+    <y>673</y>
+    <width>930</width>
+    <height>60</height>
+    <pv_name>$(P)$(R)Raw1Destination_RBV</pv_name>
+    <format>6</format>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Scope</name>
+    <x>20</x>
+    <y>765</y>
+    <width>930</width>
+    <height>55</height>
+    <text>Serval writes .tpx4 files or sends binary events to an external TCP consumer. The IOC does not decode raw events. File splitting is ignored for TCP. Preview and Image are configured in Destinations.</text>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>StatusLabel</name>
+    <x>20</x>
+    <y>835</y>
+    <width>150</width>
+    <height>24</height>
+    <text>Destination response</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Status</name>
+    <x>180</x>
+    <y>832</y>
+    <width>770</width>
+    <height>60</height>
+    <pv_name>$(P)$(R)WriteFileMessage</pv_name>
+    <format>6</format>
+    <wrap_words>true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>PreviewLabel</name>
+    <text>Preview</text>
+    <x>285</x>
+    <y>108</y>
+    <width>80</width>
+    <height>25</height>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>PreviewEnable</name>
+    <pv_name>$(P)$(R)WritePrvImg</pv_name>
+    <bit>-1</bit>
+    <x>370</x>
+    <y>105</y>
+    <width>110</width>
+    <height>30</height>
+    <tooltip>Include this image channel when applying destinations</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>ImageLabel</name>
+    <text>Image 0</text>
+    <x>510</x>
+    <y>108</y>
+    <width>80</width>
+    <height>25</height>
+  </widget>
+  <widget type="bool_button" version="2.0.0">
+    <name>ImageEnable</name>
+    <pv_name>$(P)$(R)WriteImg</pv_name>
+    <bit>-1</bit>
+    <x>595</x>
+    <y>105</y>
+    <width>110</width>
+    <height>30</height>
+    <tooltip>Include this image channel when applying destinations</tooltip>
+  </widget>
+</display>

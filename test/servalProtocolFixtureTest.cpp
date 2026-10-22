@@ -1428,6 +1428,41 @@ void testHistogramDestinationReadback()
            "histogram readback rejects a non-object channel before publication");
 }
 
+void testTpx4RawOutput()
+{
+    using namespace ADTimePix3ServalDestination;
+    const nlohmann::json file = {{"Base", "file:/tmp/raw"},
+        {"SplitStrategy", "SINGLE_FILE"}, {"QueueSize", 128}};
+    const nlohmann::json tcp = {{"Base", "tcp://connect@localhost:8088"},
+        {"QueueSize", 256}};
+    Snapshot snapshot;
+    const nlohmann::json response = {{"Raw", {file, tcp}}};
+    testOk(parseResponse(200, response.dump(), snapshot) == ResponseError::None &&
+        nlohmann::json::parse(snapshot.rawDestinations[0]) == file &&
+        nlohmann::json::parse(snapshot.rawDestinations[1]) == tcp,
+        "raw readbacks preserve both applied channels independently");
+    testOk(parseResponse(200, "{}", snapshot) == ResponseError::None &&
+        snapshot.rawDestinations[0] == "{}" && snapshot.rawDestinations[1] == "{}",
+        "raw readbacks clear removed channels");
+    testOk(parseResponse(200, "{\"Raw\":[{},null]}", snapshot) ==
+        ResponseError::InvalidRawChannels,
+        "raw readback rejects a sparse channel array");
+    testOk(tpx4RawOutputError("4.3.0-EXPERIMENTAL", "file:/tmp/raw", 0, 128) == nullptr &&
+        tpx4RawOutputError("4.3.0", "file:/tmp/raw", 1, 128) == nullptr &&
+        tpx4RawOutputError("4.3.0", "tcp://connect@localhost:8088", -1, 128) == nullptr,
+        "TPX4 raw policy permits qualified file splitting and TCP without a file split setting");
+    testOk(tpx4RawOutputError("4.1.7", "file:/tmp/raw", 0, 128) != nullptr &&
+        tpx4RawOutputError("4.3.01", "file:/tmp/raw", 0, 128) != nullptr &&
+        tpx4RawOutputError("", "file:/tmp/raw", 0, 128) != nullptr,
+        "TPX4 raw policy rejects unqualified and missing server versions");
+    testOk(tpx4RawOutputError("4.3.0", "http://localhost:8088", 0, 128) != nullptr,
+        "TPX4 raw policy rejects HTTP before a destination PUT");
+    testOk(tpx4RawOutputError("4.3.0", "file:/tmp/raw", 0, 0) != nullptr &&
+        tpx4RawOutputError("4.3.0", "file:/tmp/raw", 0, -1) != nullptr &&
+        tpx4RawOutputError("4.3.0", "file:/tmp/raw", 2, 128) != nullptr,
+        "TPX4 raw policy rejects invalid queues and file splitting");
+}
+
 void testDashboardResponseValidation()
 {
     using ADTimePix3ServalDashboard::ResponseError;
@@ -2457,7 +2492,7 @@ void testRollingWindowSum()
 
 MAIN(servalProtocolFixtureTest)
 {
-    testPlan(384);
+    testPlan(391);
     testTcpScript();
     testTcpSilenceIsBounded();
     testProductionNetworkClient();
@@ -2476,6 +2511,7 @@ MAIN(servalProtocolFixtureTest)
     testDacUpdateValidation();
     testDestinationResponseValidation();
     testHistogramDestinationReadback();
+    testTpx4RawOutput();
     testDashboardResponseValidation();
     testHealthResponseValidation();
     testPixelConfigResponseValidation();

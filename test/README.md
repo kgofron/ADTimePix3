@@ -90,7 +90,12 @@ These checks do not render JavaFX. Reopen the Image tab in Phoebus to verify
 the native plot margins and view switches on the deployed client. The geometry
 script travels with the BOB file and intensity script; no IOC restart is needed.
 
-## TPX4 histogram destination validation
+## TPX4 raw and histogram destination validation
+
+The suite also validates TPX4 raw destination version/transport/queue/split
+guards and independent applied JSON readbacks for both raw channels. Live
+Serval/emulator captures and their limits are recorded under **Raw destinations
+on Serval 4.3.0** in `documentation/timepix4/integration.md`.
 
 The C++ fixture suite also checks that histogram destination readback preserves
 Serval's actual applied channel, including its numeric settings, and rejects a
