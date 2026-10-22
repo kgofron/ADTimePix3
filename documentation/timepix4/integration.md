@@ -184,36 +184,35 @@ selected absolute path to that channel's existing `RawFilePath` or
 validation and destination allowlist checks for TPX3, MPX3 and TPX4;
 explicit file and TCP URIs retain their existing validation. Existing scan
 clients that already prepend `file:` retain the same URI without a second
-prefix. No script or extra
-PV is used. **File prefix / pattern** remains a text field for literal run
-prefixes and time patterns; it has no chooser. Cancelling leaves the path
+prefix. No script or extra PV is used. **File prefix / pattern** remains a text
+field for literal run prefixes and time patterns; it has no chooser. Cancelling leaves the path
 unchanged; use **Apply destination** after accepting the selection.
 The editable field can retain the chooser's plain path; the blue readback
 shows the `file:/...` value used by the driver. The same conversion is
 available for Image 0/1 and Preview Image 0/1 Base parameters across the three
-detector families. Their existing
-channel qualification and enable guards continue to apply.
+detector families. Their existing channel qualification and enable guards
+continue to apply.
 These choosers browse the **Phoebus computer**, so the selected directory must
 also exist at the same path on the Serval computer. For remote-only directories
 or TCP destinations, enter the Base URI directly. Rebuild and restart the IOC
 to load the path conversion, then reopen Raw destinations for the new buttons.
 
 The earlier TPX4-only directory normalization implementation passed the
-application and IOC builds and all **407** protocol fixture checks. An isolated IOC against
-a local fake Serval verified all
-six Base parameters with plain directories, repeated selections, explicit
-`file:` URIs, `/`, HTTP and TCP URLs. Both raw channels independently applied
+application and IOC builds and all **407** protocol fixture checks. An isolated
+IOC against a local fake Serval verified all six Base parameters with plain
+directories, repeated selections, explicit `file:` URIs, `/`, HTTP and TCP URLs.
+Both raw channels independently applied
 the expected normalized Base values and retained their file patterns. TCP
 values passed through unchanged; raw HTTP was still rejected before PUT.
 The existing root-directory check was fixed to preserve `/` before `stat`.
 Earlier native-selector/path-readback BOB wiring checks passed for both raw
 channels. The updated labels, prefix readbacks and chooser interaction still
-need a visual Phoebus check. No tests were rerun for the screen text/layout
-update or the extension of normalization to TPX3 and MPX3. The shared driver
-library rebuilt successfully after removing the detector-family restriction.
-The acquisition
-client's handling of directories versus complete filenames remains a separate
-integration check; adding URI normalization does not change that contract.
+need a visual Phoebus check. No automated tests were rerun for the screen
+text/layout update or the extension of normalization to TPX3 and MPX3. The
+shared driver library rebuilt successfully after removing the detector-family
+restriction. The acquisition client's handling of directories versus complete
+filenames remains a separate integration check; adding URI normalization does
+not change that contract.
 Local evidence is under `/tmp/tpx4-directory-ioc-n_v8o0jw/`; this test used no
 running operator IOC, Serval, emulator or detector.
 
@@ -233,6 +232,19 @@ has a separate binary format. The captures begin with `TPX4`, but no production
 event decoder, time units, heartbeat reconstruction or event accounting were
 qualified here. The existing TPX3 raw appendix and clock constants cannot
 establish TPX4 decoding.
+
+#### Operator file-writing check, 2026-10-22
+
+After the shared destination-path normalization (`0725ee1`) and TPX4 raw
+screen changes (`ecdce46`), the operator reported testing TPX4 Image, Preview
+and Raw file writing and finding that they worked. This records an
+operator-reported functional check of the updated implementation.
+
+The report did not include acquisition settings, durations, saved-file
+inspection results or confirmation of each channel's chooser interaction.
+It does not extend the earlier throughput, timing or data-completeness
+qualification. TPX3 and MPX3 acquisition compatibility, including the scan-server
+workflow that already supplies `file:/`, remains to be checked.
 
 #### Qualification, 2026-10-22
 
