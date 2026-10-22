@@ -6,7 +6,11 @@ captures, with PID/PTS/MIN/MAX metadata. It is not a hardware packet decoder
 or a fine-time/calibration implementation. Event identity includes the full
 64-bit pixel word and unwrapped coarse ToA; multiplicity is preserved.
 
-Exit codes: 0 = equal within completed shutters; 1 = event differences;
+By default, every completed shutter interval must match. An explicit frame
+period can exclude a short final interval caused by stopping mid-frame; the
+excluded interval remains visible in the JSON and in whole-capture differences.
+
+Exit codes: 0 = equal within selected shutters; 1 = event differences;
 2 = unsupported, malformed or incompatible inputs. JSON goes to stdout.
 """
 
@@ -127,13 +131,35 @@ def read_capture(path):
     return Capture(summary, events, dict(intervals))
 
 
-def selected_events(capture):
+def frame_intervals(capture, period):
+    if period is None:
+        return capture.intervals, {}
+    if period <= 0:
+        raise ValueError("frame period must be positive")
+    selected, excluded = {}, {}
+    for stream, ranges in capture.intervals.items():
+        selected[stream] = []
+        for index, (start, stop) in enumerate(ranges):
+            if stop - start == period:
+                selected[stream].append((start, stop))
+            elif index == len(ranges) - 1 and 0 < stop - start < period:
+                excluded[stream] = [(start, stop)]
+            else:
+                raise ValueError(f"{capture.summary['name']}: expected full frames; only a shorter final interval can be excluded")
+        if not selected[stream]:
+            raise ValueError(f"{capture.summary['name']}: no full frames for stream {stream}")
+    return selected, excluded
+
+
+def selected_events(capture, intervals=None):
+    if intervals is None:
+        intervals = capture.intervals
     selected = Counter()
-    counts = {stream: [0] * len(ranges) for stream, ranges in capture.intervals.items()}
+    counts = {stream: [0] * len(ranges) for stream, ranges in intervals.items()}
     excluded = Counter()
     for key, multiplicity in capture.events.items():
         stream, coarse, _ = key
-        for index, (start, stop) in enumerate(capture.intervals[stream]):
+        for index, (start, stop) in enumerate(intervals[stream]):
             if start <= coarse < stop:
                 selected[key] = multiplicity
                 counts[stream][index] += multiplicity
@@ -158,16 +184,27 @@ def difference_summary(events):
     }
 
 
-def compare(left, right):
-    if left.intervals != right.intervals:
+def compare(left, right, frame_period=None):
+    left_intervals, left_partial = frame_intervals(left, frame_period)
+    right_intervals, right_partial = frame_intervals(right, frame_period)
+    if left_intervals != right_intervals:
         raise ValueError("completed shutter intervals differ between captures")
-    lhs, rhs = selected_events(left), selected_events(right)
+    lhs, rhs = selected_events(left, left_intervals), selected_events(right, right_intervals)
     selected_left_only, selected_right_only = lhs - rhs, rhs - lhs
     return {
-        "schema": "serval43-tpx4-coarse-comparison-v1",
+        "schema": "serval43-tpx4-coarse-comparison-v2",
         "equivalent_within_completed_shutters": lhs == rhs,
+        "equivalent_within_selected_shutters": lhs == rhs,
+        "selection": {
+            "mode": "all_completed_shutters" if frame_period is None else "full_frame_period",
+            "frame_period_25ns": frame_period,
+            "left_excluded_final_partial_intervals_25ns_per_stream": left_partial,
+            "right_excluded_final_partial_intervals_25ns_per_stream": right_partial,
+        },
         "identity": "stream, unwrapped binary coarse ToA, full 64-bit pixel word; multiplicity preserved",
-        "intervals_25ns_per_stream": left.intervals,
+        "intervals_25ns_per_stream": left_intervals,
+        "original_left_intervals_25ns_per_stream": left.intervals,
+        "original_right_intervals_25ns_per_stream": right.intervals,
         "left": left.summary,
         "right": right.summary,
         "selected_left_only": difference_summary(selected_left_only),
@@ -182,9 +219,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("left", type=Path)
     parser.add_argument("right", type=Path)
+    parser.add_argument("--frame-period-25ns", type=int,
+                        help="compare only full frames of this coarse duration; explicitly report a shorter final interval")
     args = parser.parse_args()
     try:
-        report = compare(read_capture(args.left), read_capture(args.right))
+        report = compare(read_capture(args.left), read_capture(args.right), args.frame_period_25ns)
     except (OSError, ValueError) as error:
         print(f"TPX4 comparison failed: {error}", file=sys.stderr)
         return 2

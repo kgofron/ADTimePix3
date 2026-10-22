@@ -95,5 +95,7 @@ Raw output remains a reasonable development path on Serval 4.3. Consumers
 must decide whether to retain all raw events or only completed shutter
 intervals. Before a production decoder is accepted, resolve the fine-timestamp
 edge cases from the [operator sample analysis](raw-sample-20261022.md).
-The next acquisition qualification should cover repeated starts/stops and
-longer runs, followed by rate increases with independent event accounting.
+The subsequent [lifecycle qualification](raw-lifecycle-20261022.md) covers
+repeated starts/stops and finite runs up to five seconds. It found matching
+full-frame events, with the interrupted frame retained only by the file when
+explicitly stopping mid-frame. Higher rates still need independent accounting.

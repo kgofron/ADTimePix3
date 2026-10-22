@@ -111,6 +111,21 @@ or unsupported input. It does not qualify fine timing, throughput or hardware
 completeness. See `documentation/timepix4/raw-file-tcp-20261022.md` for the two
 saved-pair results.
 
+For an explicit stop during a 100-ms frame, compare the full frames with:
+
+```sh
+python3 test/compare_tpx4_raw.py --frame-period-25ns 4000000 capture/raw_000000.tpx4 capture/tcp.bin > full-frames.json
+```
+
+This opt-in mode permits a shorter final interval per stream, records that
+exclusion and both original interval sets, and still requires identical
+selected full-frame intervals. Whole-capture differences remain visible.
+Default mode continues to require identical completed shutter intervals.
+The JSON v2 output includes `equivalent_within_selected_shutters` and the
+selection scope; the earlier equality field remains as a compatibility alias.
+See `documentation/timepix4/raw-lifecycle-20261022.md` for the strict interval
+mismatches and explicit full-frame matches observed during manual stops.
+
 The C++ fixture suite also checks that histogram destination readback preserves
 Serval's actual applied channel, including its numeric settings, and rejects a
 non-object channel before publication. These checks do not validate a TPX4

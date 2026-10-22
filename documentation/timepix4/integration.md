@@ -255,6 +255,19 @@ SPIDR4 discovery and TPX4 equalization improvements and a stop/finite-run
 deadlock fix, without a listed TPX4 raw or histogram fix. It remains a separate
 compatibility check; the running 4.3 service was preserved.
 
+#### Repeated start/stop and longer runs, 2026-10-22
+
+The subsequent [lifecycle qualification](raw-lifecycle-20261022.md) completed
+ten short finite runs, three explicit stops while recording, and 2-/5-second
+finite runs on the same 4.3 pair. File and TCP output matched across all 74
+full frames: 10.9 million selected events per output. Explicit stops exposed
+a further distinction: the file retains a closed interrupted frame while TCP
+ends after the last full frame. Whole-capture equivalence therefore does not
+hold for those stops. The original settings were restored and compared after
+all 15 API runs; the final state was idle. IOC acquisition-worker lifecycle,
+precision timing, hardware completeness and sustained throughput remain
+unqualified.
+
 ### Histogram destination compatibility
 
 Open **Histogram destination** from Destinations. The separate
