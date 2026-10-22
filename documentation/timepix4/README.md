@@ -13,6 +13,7 @@ generation (`-Dtdc=0`); histogram timing remains unqualified.
 | Preview and Image | With the decoder fix, the operator confirmed Preview and latest-frame, Last-N sum and accumulated-sum Image display with emulator/Serval 4.3. |
 | Serval 4.3 framing | Image payloads have alignment spaces before the terminating newline. The decoder supports this and legacy framing, and honors `bigEndian`. |
 | Histogram | Both tested Serval versions accept TCP `jsonhisto` / `tof` settings but reject TPX4 acquisition start with `Histopars can only be defined for TPX.` The setup screen remains read-only. |
+| Raw output (2026-10-22) | Serval 4.3.0 build 1966 / emulator 4.3.0 passed short raw-only file, per-frame file, TCP connect, simultaneous file/TCP, and coexistence with Image/Preview file captures. Experimental destination controls are available; event decoding and sustained throughput remain unqualified. |
 | Emulator connection | The operator reported intermittent connection failures with emulator/Serval 4.3. Explicitly setting emulator `-DcmdPort=50001` restored connection. Earlier logs also showed successful connections on 50051; a universal default-port or discovery failure has not been established. |
 
 For the launch command and recovery steps, see
@@ -51,6 +52,7 @@ The feature branch provides:
   including explicit byte-order metadata;
 - experimental Image 0 output and a monitor with frame, Last-N and accumulated views;
 - a Histogram destination compatibility screen with read-only settings and applied readback;
+- experimental Raw[0]/Raw[1] file and external TCP destination controls on Serval 4.3.0, with actual applied JSON readbacks;
 - deterministic family and 448×512 geometry tests.
 
 The following remain disabled or absent until separately qualified:
@@ -58,7 +60,7 @@ The following remain disabled or absent until separately qualified:
 - PixelConfig comparison and difference mapping;
 - operator mask editing/export;
 - BPC and DACS upload;
-- raw-event channels and TPX4 histogram decoding/timing;
+- raw-event decoding, event completeness, sustained raw throughput and TPX4 histogram decoding/timing;
 - qualification of full-rate image performance, dual-preview and MPX3 threshold behavior;
 - orientations other than the captured `UP` layout;
 - multi-chip TPX4 layouts;

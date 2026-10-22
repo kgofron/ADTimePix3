@@ -136,10 +136,121 @@ small derived fixtures and facts needed for deterministic tests.
 ## Destination control
 
 The TPX4 status panel opens `Acquire/Tpx4ServerFileWriter.bob`. This restricted
-screen can edit and reapply Preview 0 and experimental Image 0 without exposing
-unqualified secondary or raw channels. After changing a field, use **Apply
+screen can edit and reapply Preview 0 and experimental Image 0. **Raw destinations**
+opens the experimental Raw[0]/Raw[1] controls described below. After changing a field, use **Apply
 Destination** to send the complete destination to Serval and refresh the
 readbacks.
+
+### Raw destinations on Serval 4.3.0
+
+Open **Raw destinations** from Destinations. Raw output is disabled at IOC
+startup and can be enabled manually with Serval **4.3.0**, including the tested
+`4.3.0-EXPERIMENTAL` build **1966**, and TPX4 emulator **4.3.0**. Other Serval
+versions remain blocked for TPX4 raw output until separately qualified.
+
+Each channel exposes its requested Base URI, file pattern, file split strategy
+and queue size. Configure while idle and use **Apply destination**. This sends
+all enabled Raw, Image and Preview channels together. Enable Raw[0] before
+Raw[1]; disabling Raw[0] requires disabling Raw[1] too. Raw-only destinations
+are permitted. The separate applied JSON readbacks, `RawDestination_RBV` and
+`Raw1Destination_RBV`, come from `GET /server/destination`; `{}` means absent.
+The existing individual path readbacks reflect local requested parameters.
+
+- `file:/absolute/directory` writes `.tpx4` files on the **Serval computer**.
+  The directory must exist and be writable there. The split choices are
+  `single_file` and `frame`.
+- `tcp://connect@localhost:PORT` sends binary events to an external receiver
+  that must already be listening before acquisition starts. A raw TCP receiver
+  is not provided by this IOC. The IOC's image TCP receivers do not consume raw
+  channels. TCP output uses Base and QueueSize; file pattern and splitting are
+  omitted from the request.
+- HTTP raw output is rejected. Queue size must be positive, and the destination
+  must also pass the configured destination allowlist.
+
+Do not point a raw consumer at the Preview/Image `jsonimage` decoder. Raw data
+has a separate binary format. The captures begin with `TPX4`, but no production
+event decoder, time units, heartbeat reconstruction or event accounting were
+qualified here. The existing TPX3 raw appendix and clock constants cannot
+establish TPX4 decoding.
+
+#### Qualification, 2026-10-22
+
+The locally installed `20251202_ASIServer_TPX3_manual_V4.1.3.pdf`, supplied with
+the **4.1.7** package, was checked alongside its Python acquisition example and
+release notes. The manual documents Raw destination controls and a **TPX3** raw
+format appendix (section 6.1); it does not document a TPX4 packet contract. The
+vendor's separate TPX4 Python acquisition example in the 4.1.6 TPX4 package
+also explicitly configures a Raw file destination. These examples include
+detector and calibration writes, so they were read as documentation rather
+than executed unchanged.
+
+Five direct API captures used three 0.1-second Continuous frames each on the
+running 4.3 pair, at an observed emulator pixel rate of about 1 million/s:
+
+| Destination | Result |
+|---|---|
+| Raw file, `SINGLE_FILE` | One nonempty `.tpx4` file, 2,470,720 bytes |
+| Raw file, `FRAME` | Three nonempty `.tpx4` files, 805,600 / 805,584 / 805,584 bytes |
+| Raw TCP connect | 2,416,768 bytes, receiver reached EOF |
+| Raw file + raw TCP | Both nonempty; file 2,470,720 bytes, TCP 2,416,768 bytes |
+| Raw file + TCP + Image/Preview TIFF files | Both raw outputs nonempty; three Image and three Preview TIFF files |
+
+All five runs completed with FrameCount=3, DroppedFrames=0 and final
+`DA_IDLE`. These are Serval-reported counters, not proof of complete raw event
+delivery. Simultaneous file and TCP output was **not byte-identical**. The
+release notes say `SINGLE_FILE` output is written before sorting, but the size
+and content differences have not been explained or checked for event
+equivalence. Neither output is accepted as a reference for lossless event
+accounting. Original detector configuration, destination, measurement
+configuration and TDC configuration were restored and compared after probing.
+
+Local capture evidence is under `/tmp/tpx4-raw43-019jxc_m/` and
+`/tmp/tpx4-raw43-9sz9lgkh/`; these temporary files are not repository fixtures.
+The C++ fixture suite covers independent applied raw readbacks, removed/sparse
+channels, version gating, unsupported HTTP, invalid queue sizes and splitting.
+
+The rebuilt driver and IOC were also exercised in an isolated IOC instance.
+Applying a raw-only file destination and acquiring three frames passed;
+`NumImagesCounter_RBV` reached 3 without Preview enabled. The monitor now
+publishes measurement progress independently of Preview. Attempts to apply
+Raw[1] without Raw[0], HTTP raw output, or a histogram destination were rejected
+without changing the applied destination. Applied Raw[0] JSON was read through
+the database record. Local final smoke evidence is under
+`/tmp/tpx4-raw-ioc-jecy4w1i/`. The validation IOC exited and all four original
+configuration snapshots were restored and compared; the final state was idle.
+
+The application and IOC build, all **391** protocol fixture checks, and the
+Phoebus XML and prefix/macro checks passed. The new screen has not been
+visually checked in Phoebus. Restart the operator's IOC to load the rebuilt
+driver/database, then reopen Destinations to access **Raw destinations**.
+
+#### Operator acquisition, 2026-10-22
+
+The operator subsequently reported a successful acquisition through the
+operator IOC with Raw[0] file output and Preview 0 TCP `jsonimage` enabled.
+The file listing showed `rawCgs000000.tpx4`, **4,869,392 bytes**. Applied
+destination readback confirmed `SINGLE_FILE`, queue size 16384 and file pattern
+`raw%Hms`. The run used three 200-ms Continuous frames at 5 Hz, reported
+FrameCount=3 and DroppedFrames=0, and finished in `DA_IDLE`. This was
+operator-provided file/log evidence. A subsequent read-only check of the sample
+found intact framing, 604,464 pixel words, valid coordinates and the expected
+three shutter intervals, plus 4,464 hits after the final shutter close. See the
+[sample analysis](raw-sample-20261022.md) for decoder limitations and evidence.
+
+An earlier `file://...` entry was rejected by the IOC; the applied destination
+used the required `file:/...` form. The Preview peer-close message is consistent
+with the end of a finite acquisition and does not by itself establish a stream
+failure. Serval explicitly warned that the reported firmware does not support
+sequence headers and that data completeness checking is unavailable. Zero
+reported dropped frames therefore does not establish lossless raw event
+delivery. Its log also reported two raw writers despite the applied JSON
+containing one Raw destination; that internal writer count has not been
+explained and is not evidence of a second configured Raw channel.
+
+Serval **4.1.7 has not been run in this qualification**. Its release notes list
+SPIDR4 discovery and TPX4 equalization improvements and a stop/finite-run
+deadlock fix, without a listed TPX4 raw or histogram fix. It remains a separate
+compatibility check; the running 4.3 service was preserved.
 
 ### Histogram destination compatibility
 
