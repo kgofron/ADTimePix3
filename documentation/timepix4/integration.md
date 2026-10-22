@@ -148,13 +148,74 @@ startup and can be enabled manually with Serval **4.3.0**, including the tested
 `4.3.0-EXPERIMENTAL` build **1966**, and TPX4 emulator **4.3.0**. Other Serval
 versions remain blocked for TPX4 raw output until separately qualified.
 
-Each channel exposes its requested Base URI, file pattern, file split strategy
-and queue size. Configure while idle and use **Apply destination**. This sends
+Each channel exposes **File path / destination URI**, **File prefix / pattern**,
+file split strategy and queue size. These retain the TPX3 PV mapping:
+
+| Channel | File path / destination URI (`Base`) | File prefix / pattern (`FilePattern`) |
+|---|---|---|
+| Raw[0] | `RawFilePath` | `RawFileTemplate` |
+| Raw[1] | `Raw1FilePath` | `Raw1FileTemplate` |
+
+The prefix may be a literal run name such as `scan_0042_`, or include a time
+pattern such as `raw%Hms`. Serval appends a counter and the `.tpx4` extension;
+omitting the time pattern does not suppress the counter. An acquisition client
+can update the prefix for each run while retaining the configured directory.
+There is no separate raw `FileName` PV, and writing a file plugin's `FileName`
+does not update Serval's raw destination. The Serval pattern is not the
+areaDetector file plugin's printf-style `FileTemplate`.
+
+Configure while idle and use **Apply destination**. This sends
 all enabled Raw, Image and Preview channels together. Enable Raw[0] before
 Raw[1]; disabling Raw[0] requires disabling Raw[1] too. Raw-only destinations
 are permitted. The separate applied JSON readbacks, `RawDestination_RBV` and
 `Raw1Destination_RBV`, come from `GET /server/destination`; `{}` means absent.
-The existing individual path readbacks reflect local requested parameters.
+The individual path and pattern readbacks reflect requested parameters stored
+by the IOC; path values include URI normalization. The raw screen shows the
+existing `_RBV` PVs in blue above each path and prefix field, together with
+**Exists (IOC)** beside the path readback. These are not final generated
+filenames. Existence is checked on the IOC computer;
+TCP/HTTP values do not imply a successful connection. The applied JSON remains
+the readback of what Serval accepted.
+
+Each raw channel has one native Phoebus **File Selector** button beside
+**File path / destination URI**, configured to select a directory. It writes the
+selected absolute path to that channel's existing `RawFilePath` or
+`Raw1FilePath` PV. The shared driver handling adds `file:` before path
+validation and destination allowlist checks for TPX3, MPX3 and TPX4;
+explicit file and TCP URIs retain their existing validation. Existing scan
+clients that already prepend `file:` retain the same URI without a second
+prefix. No script or extra
+PV is used. **File prefix / pattern** remains a text field for literal run
+prefixes and time patterns; it has no chooser. Cancelling leaves the path
+unchanged; use **Apply destination** after accepting the selection.
+The editable field can retain the chooser's plain path; the blue readback
+shows the `file:/...` value used by the driver. The same conversion is
+available for Image 0/1 and Preview Image 0/1 Base parameters across the three
+detector families. Their existing
+channel qualification and enable guards continue to apply.
+These choosers browse the **Phoebus computer**, so the selected directory must
+also exist at the same path on the Serval computer. For remote-only directories
+or TCP destinations, enter the Base URI directly. Rebuild and restart the IOC
+to load the path conversion, then reopen Raw destinations for the new buttons.
+
+The earlier TPX4-only directory normalization implementation passed the
+application and IOC builds and all **407** protocol fixture checks. An isolated IOC against
+a local fake Serval verified all
+six Base parameters with plain directories, repeated selections, explicit
+`file:` URIs, `/`, HTTP and TCP URLs. Both raw channels independently applied
+the expected normalized Base values and retained their file patterns. TCP
+values passed through unchanged; raw HTTP was still rejected before PUT.
+The existing root-directory check was fixed to preserve `/` before `stat`.
+Earlier native-selector/path-readback BOB wiring checks passed for both raw
+channels. The updated labels, prefix readbacks and chooser interaction still
+need a visual Phoebus check. No tests were rerun for the screen text/layout
+update or the extension of normalization to TPX3 and MPX3. The shared driver
+library rebuilt successfully after removing the detector-family restriction.
+The acquisition
+client's handling of directories versus complete filenames remains a separate
+integration check; adding URI normalization does not change that contract.
+Local evidence is under `/tmp/tpx4-directory-ioc-n_v8o0jw/`; this test used no
+running operator IOC, Serval, emulator or detector.
 
 - `file:/absolute/directory` writes `.tpx4` files on the **Serval computer**.
   The directory must exist and be writable there. The split choices are

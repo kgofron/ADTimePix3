@@ -13,13 +13,24 @@ across acquisitions, so compare its values before and after each run rather
 than comparing its absolute value with Serval's per-run frame count. The IOC
 image TCP worker also requires `ImgAccumulationEnable=1`; the TPX4 startup
 profile sets this while leaving `WriteImg=0`. The driver rejects a TPX4
-destination push if raw, secondary
-image or preview, or histogram flags are enabled. It also rejects a push
-without either Preview[0] or Image[0], since an empty destination is not yet
-a qualified way to clear the active Serval destination.
+destination push if secondary image or preview, or histogram flags are enabled.
+Raw[0]/Raw[1] file and external TCP output is available with the qualified
+Serval 4.3.0 version; Raw[1] requires Raw[0]. A push must enable at least one
+of Raw[0], Preview[0] or Image[0].
+
+**Raw destinations** opens `Acquire/Tpx4RawDestination.bob`. Both raw channels
+retain the TPX3 PV names: `RawFilePath` / `RawFileTemplate` and
+`Raw1FilePath` / `Raw1FileTemplate`. The screen labels them **File path /
+destination URI** and **File prefix / pattern**, with their existing readbacks
+shown above the editable fields. The native directory chooser updates only the
+path; enter TCP URIs manually. Prefixes may be literal run names or time
+patterns. Serval appends a counter and extension. Applied JSON shows the
+destination accepted by Serval. See the
+[integration notes](../../../../../documentation/timepix4/integration.md#raw-destinations-on-serval-430)
+for naming and chooser details.
 
 The profile intentionally omits PixelConfig, mask, BPC/DACS, secondary preview,
-raw-event, histogram, MPX3 threshold, and emulator-control
+raw-event decoding, histogram, MPX3 threshold, and emulator-control
 panels. Do not copy those panels from TPX3 or MPX3 until their TPX4 behavior has
 been captured and tested.
 
