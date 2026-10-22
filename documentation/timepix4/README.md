@@ -14,6 +14,7 @@ generation (`-Dtdc=0`); histogram timing remains unqualified.
 | Serval 4.3 framing | Image payloads have alignment spaces before the terminating newline. The decoder supports this and legacy framing, and honors `bigEndian`. |
 | Histogram | Both tested Serval versions accept TCP `jsonhisto` / `tof` settings but reject TPX4 acquisition start with `Histopars can only be defined for TPX.` The setup screen remains read-only. |
 | Raw output (2026-10-22) | Serval 4.3.0 build 1966 / emulator 4.3.0 passed short raw-only file, per-frame file, TCP connect, simultaneous file/TCP, and coexistence with Image/Preview file captures. Experimental destination controls are available; event decoding and sustained throughput remain unqualified. |
+| Raw file/TCP comparison (2026-10-22) | Two saved simultaneous pairs contain identical full pixel-word multisets within three completed shutter intervals: 300,000 selected events per output. Extra file events occur after the final close. See the [comparison report](raw-file-tcp-20261022.md); hardware completeness and precision timing remain unqualified. |
 | Emulator connection | The operator reported intermittent connection failures with emulator/Serval 4.3. Explicitly setting emulator `-DcmdPort=50001` restored connection. Earlier logs also showed successful connections on 50051; a universal default-port or discovery failure has not been established. |
 
 For the launch command and recovery steps, see

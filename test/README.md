@@ -97,6 +97,20 @@ guards and independent applied JSON readbacks for both raw channels. Live
 Serval/emulator captures and their limits are recorded under **Raw destinations
 on Serval 4.3.0** in `documentation/timepix4/integration.md`.
 
+Compare saved Serval 4.3 single-chip raw file/TCP captures offline with:
+
+```sh
+python3 test/compare_tpx4_raw.py capture/raw_000000.tpx4 capture/tcp.bin > comparison.json
+```
+
+This standard-library diagnostic compares full pixel-word multisets and
+unwrapped coarse ToA within matching completed shutter intervals. It retains
+event counters in memory and is intended for small qualification captures.
+Exit codes are 0 for equal selected events, 1 for differences, and 2 for invalid
+or unsupported input. It does not qualify fine timing, throughput or hardware
+completeness. See `documentation/timepix4/raw-file-tcp-20261022.md` for the two
+saved-pair results.
+
 The C++ fixture suite also checks that histogram destination readback preserves
 Serval's actual applied channel, including its numeric settings, and rejects a
 non-object channel before publication. These checks do not validate a TPX4

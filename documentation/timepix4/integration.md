@@ -198,10 +198,13 @@ running 4.3 pair, at an observed emulator pixel rate of about 1 million/s:
 All five runs completed with FrameCount=3, DroppedFrames=0 and final
 `DA_IDLE`. These are Serval-reported counters, not proof of complete raw event
 delivery. Simultaneous file and TCP output was **not byte-identical**. The
-release notes say `SINGLE_FILE` output is written before sorting, but the size
-and content differences have not been explained or checked for event
-equivalence. Neither output is accepted as a reference for lossless event
-accounting. Original detector configuration, destination, measurement
+release notes say `SINGLE_FILE` output is written before sorting. A subsequent
+[offline comparison](raw-file-tcp-20261022.md) found exact pixel-event
+equivalence within the three completed shutter intervals in both simultaneous
+captures: 300,000 events per output. Extra file events were all after the final
+shutter close; additional event/framing/control bytes reconcile the size
+differences. Neither output is accepted as a reference for complete hardware
+delivery. Original detector configuration, destination, measurement
 configuration and TDC configuration were restored and compared after probing.
 
 Local capture evidence is under `/tmp/tpx4-raw43-019jxc_m/` and

@@ -82,8 +82,9 @@ with that tool/sample combination, not that the intact container is corrupt.
 ## Next work
 
 Raw channels are a reasonable development path on the current 4.3 pair. The
-next useful step is an offline replay/accounting check that selects shutter
-intervals explicitly and compares **events** between simultaneous file and TCP
-captures. The previously observed file/TCP size difference remains unexplained;
-this sample alone cannot establish equivalence or lossless delivery. Resolve
+subsequent [file/TCP comparison](raw-file-tcp-20261022.md) selected completed
+shutter intervals in two previously saved simultaneous captures and found
+300,000 identical events per output in each pair. All additional file events
+were after the final shutter close. This operator sample itself has no paired
+TCP raw capture and cannot establish equivalence or lossless delivery. Resolve
 the timestamp edge cases before accepting a decoder for precision timing.
