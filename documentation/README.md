@@ -42,6 +42,18 @@ Merged in **R1-7-0** (August 2026). See **[medipix3/](medipix3/)** and [NAMING.m
 | [PVA_FLICKERING_DIAGNOSIS.md](PVA_FLICKERING_DIAGNOSIS.md) | PVA flicker with histogram channel |
 | [TimePix3_pipeline_48_64_96.svg](TimePix3_pipeline_48_64_96.svg) | Readout stack diagram (editable) |
 
+## Upstream ASI packages
+
+Serval HTTP and the manual stay in this tree. Raw-word decode and the Luna clustering comparison stay in tpx3events `docs/ASI_VENDOR_REFERENCES.md`.
+
+| Item | Where |
+|------|--------|
+| Live API while Serval is up | `http://localhost:8081/docs/` and `http://localhost:8081/openapi.json`. On 2026-10-22 that process reported **4.3.0-EXPERIMENTAL**. |
+| `PUT /detector/tdc` (`putTdcSpec`) | Timepix4 column map (x = 0..447 for TDC1–TDC4). |
+| `PUT /measurement/config/timeofflight` | Timepix3 preview ToF (`TdcReference` substring of `PN0123`). This is Serval’s histogram gate, not the raw-stream ToF label. |
+| Unpacked 4.1.7 drop, not started | `/epics/util/tpx3/20260828_ASI_Server_4.1.7_TPX3/` — JAR, `release_notes.txt`, Python examples, manual PDF still marked **V4.1.3**. |
+| Python examples | `examples/tpx3/` in that drop (`tpx3_example_01`–`05`). `readme.txt` still mentions Serval 3 and port 8080. |
+
 ## Project
 
 | Document | Description |
